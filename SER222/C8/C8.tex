@@ -20,4 +20,51 @@ if nothing else exists. This definition of a list uses the word ``list'' inside
 of the definition, so it is recursive. The situation in which a list is just
 one element is the definition's ``base case''.
 
+\section{Infinite Recursion}
+Recursive definitions must have a non-recursive portion, which is oftentimes
+the base case. If the definition does not have a non-recursive part, the
+recursive definition will never end. However, this is oftentimes less desirable
+than an infinite loop, because an infinite recursion will often run the program
+out of stack frames and it will crash.
+
+\section{Recursion in Math}
+Recursion is often used in mathematics. For instance, the factorial definition
+is defined using another factorial, which is defined using another factorial
+and so on until the base case of 1 is reached. Using recursion in programming
+can allow us to reflect these definitions elegantly.
+
+\section{Recursion in Java}
+Recursion can be formed in Java by having a method call itself. This is known
+as a ``recursive method''. The body of the recursive method must contain code
+for every case, including the recursive and non-recursive cases. This is often
+in the form of a chain of if-else statements.
+
+In Java, each call to the method sets up a new scope with new parameters and
+local variables. When the method completes, it returns to the place that
+executed the method.
+
+\section{Recursion vs. Iteration}
+Theoretically, recursion can solve any solution iteration can solve, and vice
+versa, but just because we can use recursion doesn't necessarily mean that we
+should. Oftentimes, iteration can be easier to follow and is what most
+programmers are used to seeing.
+
+Recursion is also associated with a lot of overhead. Iterative solutions don't
+create a new stack frame for every iteration, for instance.
+
+There are situations where recursion solves a problem very elegantly, but in a
+non-purely-functional language like Java, it's best used sparingly.
+
+\section{Types of Recursion}
+The recursion we commonly think of is known as ``direct recursion''. A recursive
+definition is direct when a function directly calls itself. The other type of
+recursion is known as ``indirect recursion'', wherein a chain of function calls
+eventually loops on itself, but no functions call themselves directly.
+
+\section{Analyzing Recursive Algorithms}
+To find the order of a loop, we multiply the order of the body of the loop with
+the amount of loop executions. We can do the same thing with recursive
+definitions by multiplying how often the recursive function runs by the order
+of the function.
+
 \end{document}
