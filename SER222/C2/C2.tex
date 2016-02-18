@@ -1,0 +1,163 @@
+\documentclass{article}
+\author{Tyler Compton}
+\title{Chapter 2 - Analysis of Algorithms}
+
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{listings}
+
+\input{code-format}
+\lstset{style=codestyle}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\section{Introduction}
+Software engineers have a vast array of tools to solve problems. These tools
+are referred to as algorithms. Naturally, we want to choose the algorithm that
+solves the problem most efficiently. The efficiency of an algorithm is usually
+expressed in terms of CPU time, but CPU time is platform specific. We can come
+up with formulas that express an algorithm's efficiency.
+
+\section{Algorithm Efficiency}
+As an example, consider a dish washer that needs to redry all previously washed
+dishes after washing one. It takes 30 seconds to wash one dish, and 30 seconds
+to dry a dish. The formula for this algorithm would be the following.
+
+$$time(ndishes) = 30n + \sum_{i=1}^{n}(i+30)$$
+
+$$time(ndishes) = 30n + \dfrac{30n(n+1)}{2}$$
+
+\section{Problem Size}
+When choosing algorithms, we need to know the size of our problem. In the above
+example, the size is the amount of dishes that need washing. For a sorting
+algorithm, it is the amount of items that will be searched through.
+
+\section{Growth Functions}
+We also must consider what resources we need to optimize our use of most.
+Usually, we target CPU time, but on memory-starved system, we may be concerned
+about RAM, instead.
+
+A growth function is the relationship between the size of the problem and the
+value that we are concerned about. Growth functions can be very useful when
+comparing algorithms that are similar in other ways. The following is the
+growth function of the dish washer.
+
+$$t(n) = 15n^2 + 45n$$
+
+\section{Asymptotic Complexity}
+Asymptotic complexity is a simplified growth function. It concentrates entirely
+on the dominate term. In the case of the dish washer growth function, the term
+$15n^2$ grows far, far faster than $45n$. As a result, the more our problem
+size increases, the less important the factor $45n$ becomes. Similarly, the
+fact that the term $15n^2$ is multiplied by 15 becomes more and more
+insignificant as the problem size increases, as well. Therefore, the asymptotic
+complexity of the dish washer is $n^2$.
+
+When compared to their original growth functions, an algorithm's asymptotic
+complexity should either be slower (as in it grows faster) or equivalent.
+
+\subsection{A Note On Log}
+In mathematics, logarithmic functions tend to be base 10 unless otherwise
+specified. In science, logarithmic functions tend to be base $e$. In computing,
+logarithmic functions tend to be base 2.
+
+This seems frustrating, but remember that, for asymptotic complexity,
+$log_10 (n)$ is equivalent to $log_2 (n)$. As a result, it hardly matters.
+
+\section{Big-Oh Notation}
+Big-Oh notation is a standard form for asymptotic complexity. For the dish
+washing algorithm, it's big-oh notation is $O(n^2)$. Because asymptotic
+complexity simplifies growth functions so much, algorithms begin to fall into
+categories. Algorithms that may have different growth functions but the same
+asymptotic complexity are generally treated as if they are the same complexity.
+
+\begin{table}[H]
+	\centering
+	\begin{tabular} { l l l }
+		Growth Function & Order & Label \\
+		$t(n) = 17$ & O(1) & constant \\
+		$t(n) = 3log(n)$ & O($log(n)$) & logarithmic \\
+		$t(n) = 20n - 4$ & O(n) & linear \\
+		$t(n) = 12n log(n) + 100n$ & O($n log(n)$) & n log n \\
+		$t(n) = 3n^2 + 5n - 2$ & O($n^2$) & quadratic \\
+		$t(n) = 8n^3 + 3n^2$ & O($n^3$) & cubic \\
+		$t(n) = 2^n + 18n^2$ & O($2^n$) & exponential \\
+	\end{tabular}
+\end{table}
+
+\section{Why Does Complexity Matter?}
+For simple problems, computers often feel nearly infinitely fast. When you're
+not dealing with huge sets, it often feels like algorithm efficiency hardly
+matters. Won't Moore's Law take care of it? Nope.
+
+Imagine if we manage to upgrade our processor so that it is ten times as fast.
+It would seem like our algorithms would get way faster and we could afford to
+use less efficient algorithms where we used to have to be stingy. However,
+the benefit is oftentimes much less significant than one might hope
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{c c c c}
+		Algorithm & Time Complexity & Orig. Max Size & New Max Size \\
+		A & n     & $s_1$ & $10 s_1$    \\
+		B & $n^2$ & $s_2$ & $3.16 s_2$  \\
+		C & $n^3$ & $s_3$ & $2.15 s_3$  \\
+		D & $2^n$ & $s_4$ & $s_4 + 3.3$ \\
+	\end{tabular}
+\end{table}
+
+As you can see by the above table, the increase in speed is only linear for
+algorithms that grow linearly. The speed increase gets less significant as the
+complexity of the algorithm increases. In fact, for exponential functions like
+Algorithm D, the change is almost insignificant. It takes Moore's Law around
+six years to deliver a processor to your door that's ten times faster, and it's
+all for nothing when we use inefficient algorithms.
+
+\section{Analyzing Execution}
+We oftentimes want to analyze the complexity of a chunk of code. We do that by
+counting operations in a worse-case scenario.
+
+Here is an example of a basic algorithm
+
+\begin{lstlisting}[language=Java]
+for (int count = 0; count < n; count++) {
+	// Some sequence of O(1) steps
+}
+\end{lstlisting}
+
+We see that we're executing at least one $O(1)$ operation for every element we
+have. As a result, the amount of operations we will be executing is directly
+and linearly related to the amount of elements. So, our asymptotic complexity
+is $O(n)$.
+
+\begin{lstlisting}[language=Java]
+int count = 1;
+while (count < n) {
+	count *= 2;
+	// Some sequence of O(1) steps
+}
+\end{lstlisting}
+
+In this case, we're still executing $O(1)$ operations based on how many
+elements we have, but it isn't a linear relationship anymore because count is
+increasing faster overall then in the previous example. As a result, our
+asymptotic complexity is $O(log(n))$.
+
+\begin{lstlisting}[language=Java]
+for (int count = 0; count < n; count++) {
+	for (int count2 = 0; count2 < n; count2++) {
+		// Some sequence of O(1) steps
+	}
+}
+\end{lstlisting}
+
+Now, there are two loops, one nested in the other. If it wasn't for the second
+loop, we would again be executing $n*c$ (where c is the amount of O(1) steps)
+operations. But, in this example we're doing $n*c$ O(1) operations for every
+element. To put it simply, we're executing $n*n*c$ O(1) operations, making our
+asymptotic complexity equal to $O(n^2)$.
+
+\end{document}

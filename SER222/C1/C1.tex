@@ -1,0 +1,58 @@
+\documentclass{article}
+\author{Tyler Compton}
+\title{Chapter 1}
+
+\usepackage{float}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\section{Introduction}
+Computer Science is about how computing problems can be solved, Software
+Engineering is about how humans can use computing to solve problems. It is the
+study of the techniques and theory that support the development of high quality
+software. This makes process very important.
+
+Our goal as software engineers is to satisfy the client, who sponsors the
+development of a product, and the user, who needs the product for a task.
+
+A challenge of software engineering is solving the right problem. When talking
+to clients, it is often unclear what problem they want solved. Oftentimes, a
+client will describe how they would solve the problem, not what it is.
+
+Software engineers are tasked to deliver a high quality solution that is
+accomplished ethically. This must all be done using the allotted budget and
+time.
+
+\section{Quality Characteristics}
+\begin{table}[H]
+	\centering
+	\begin{tabular}{ l l }
+		Quality Characteristic & Description \\
+		Correctness & How well the program adheres to the given requirements \\
+		Reliability & The frequency and criticality of software failure \\
+		Robustness & How well unexpected situations are handled \\
+		Usability & How easy it is for the software to be used \\
+		Maintainability & How quickly and easily changes can be applied to software \\
+		Reusability & How easily the software components can be reused for future development \\
+		Portability & How easily software can be used in multiple environments \\
+		Efficiency & How much the software can do without wasting resources \\
+	\end{tabular}
+\end{table}
+
+\section{Data Structures}
+Generally, we talk about data structures as things that manage potentially
+large collections. As an example, we can look at shipping containers on a dock.
+There are potentially a lot of these containers, and they all need to be
+managed quickly, efficiently, and none may be lost. Containers are generic
+structures. They can hold all kinds of things, but the container itself is the
+same. This allows handlers to not have to know what's inside. Each container
+may have a unique identifier associated with it.
+
+How should this problem be solved? How many containers will we have to deal
+with at any given point? How will they be organized? Perhaps we need to sort
+them. Does the order in which the containers is loaded or unloaded matter?
+
+\end{document}

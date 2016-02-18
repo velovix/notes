@@ -1,0 +1,214 @@
+\documentclass{article}
+\author{Tyler Compton}
+\title{Chapter 6: CPU Scheduling}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\section{Introduction}
+The modern operating system has to support running many programs at the same
+time. There are almost always more programs running than there are processor
+cores, so the operating system must be able to decide how the limited CPU
+resources should be spread across all programs.
+
+\section{Basic Scheduling}
+Not every program wants to use the CPU all the time. Many programs have to
+spend time waiting, ususally for an I/O operation of some kind. These are known
+as ``I/O Bursts''. This allows the CPU to give time to other programs without
+neglecting the original program. The CPU may switch back to the original
+program once it's finished its I/O operation. These are known as
+``CPU Bursts''.
+
+The short-term scheduler is in charge of selecting among the processes in the
+ready queue to give CPU time to. These switch times happen for a few common
+reasons.
+
+\begin{enumerate}
+	\item When a process switches from running to waiting
+	\item When a process switches from running to ready
+	\item When a process switches from waiting to ready
+	\item When a process terminates
+\end{enumerate}
+
+Scheduling with items 1 and 4 are ``nonpreemptive''. All other types of
+scheduling is ``preemptive''. Preemptive scheduling can be interrupted without
+issue, but non-preemptive scheduling cannot.
+
+\section{Dispatcher}
+The dispatcher module is in charge of switching the CPU to the process that the
+short-term scheduler points to.
+
+\section{Scheduling Criteria}
+A scheduler is judged on the following criteria:
+
+\begin{itemize}
+	\item CPU utilization, how busy the processor stays (We want to keep it
+		busy)
+	\item Throughput, the amount of processes that can complete execution in a
+		given time period (We want this time to be short)
+	\item Turnaround time, the amount of time it takes to execute a process
+		from when it was requested (We want this time to be short)
+	\item Waiting time, the amount of time a process has to wait (We want this
+		time to be short)
+	\item Response time, the amount of time elapsed between when a request is
+		submitted until when the first response is produced (not when it is
+		finished, unlike turnaround time) (We want this time to be short)
+\end{itemize}
+
+\section{First Come, First Served Scheduling}
+FCFS is a simple scheduling algorithm where processes are put into a queue and
+are given a CPU burst in the order they come. A processes is given CPU time
+until it needs to wait or finishes, then the scheduler moves on to the next
+process in the queue.
+
+The average waiting time of a FCFS system is decided by the order of the
+processes in the queue relative to their CPU burst length. The average waiting
+time is the shortest when longer processes are near the back of the queue. This
+is referred to as the ``Convoy effect''. A FCFS scheduler by definition does
+not take advantage of this property, making it undesireable.
+
+\section{Shortest-Job-First Scheduling}
+SJF is a somewhat more complicated scheduling algorithm which keeps the convoy
+effect in mind. SJF schedulers have less average wait time than a FCFS
+scheduler, because they run shorter jobs first.
+
+However, figuring out how much CPU time a process will need is not easy. The
+scheduler has to take some kind of guess. The scheduler can use a process's
+history with the assumption that the process will stay relatively consistent
+with its CPU burst length. This is done through linear interpolation, which
+allows the scheduler to attempt to identify linear trends in CPU burst length
+increases and decreases. This doesn't work quite so well when the CPU burst
+length is not linear.
+
+$$T_{n+1} = \fishguy T_n + (1 - \fishguy) T_{n-1}$$
+
+If it turns out that the process does not follow a linear CPU burst length
+trend and takes much longer than expected, the scheduler may stop the process
+early and jump to another processes instead, which mitigates the issue somwhat.
+
+The convoy effect isn't all butterflies and rainbows, anyway. If the scheduler
+gets a constant stream of small processes, it will never decide to run longer
+processes, which leaves them starving.
+
+\section{Priority Scheduling}
+Priority scheduling prioritizes processes based on a process's ``priority
+number''. CPU is given to the process with the highest priority, which is
+usually the one with the lowest priority number.
+
+This algorithm can cause starving much like the SJF algorithm can. A high
+priority process can hog the CPU for large amounts of time if the scheduler
+lets that happen. Measures have to be taken to give attention to lower priority
+processes as well.
+
+The SJF algorithm is a form of priority scheduling in that the expected CPU
+burst length acts as the priorty number.
+
+\section{Round Robin Scheduling}
+This algorithm gives each process a constant (usually small) amount of time,
+then moves on to the next process in the queue. Round robin scheduling is a lot
+like FCFS scheduling in that the order is not based on anything other than
+order, but the wait time is now consistent and has nothing to do with how long
+a CPU burst the process wants.
+
+The amount of time that each process gets is known as its ``quantum'',
+represented by q. A large q minimizes switching overhead but can make tasks
+feel less responsive. A small q reduces wait times but increases switching
+overhead. The quantum should be high in comparison to switch time. 10ms is a
+common quantum value.
+
+Because round robin does not prioritize based on anything, starvation is not an
+issue. However, that means that critical tasks will get just as much CPU time
+as trivial tasks, which can be an issue.
+
+\section{Multilevel Queue}
+The ready queue that the short-term scheduler uses can be split into multiple
+levels. For instance, we could have a ``foreground'' queue and a ``background''
+queue. A program is perminitely assinged a queue. This allows the scheduler a
+way to treat different kinds of processes differently.
+
+Each queue can have its own scheduling algorithm. For instance, the foreground
+queue might have a round robin algorithm, so as to create a consistantly high
+program response time, and the background queue first come, first serve, for
+its simplicity. A background queue might be able to get away with a potentially
+high-wait-time algorithm like FCFS, because the user won't feel the wait time.
+
+An example multilevel queue setup is as follows:
+
+\begin{enumerate}
+	\item System processes
+	\item Interactive processes
+	\item Interactive editing processess
+	\item Batch processes
+\end{enumerate}
+
+\section{Multiple-Processor Scheduling}
+CPU scheduling is a tougher issue when multiple CPUs are involved. There are a
+few ways to tackle this problem.
+
+``Asymmetric multiprocessing'' mandates that only one processor may access the
+system's data structures at once. This makes data sharing a non-issue and is a
+very simple approach.
+
+``Symmetric multiprocessing'', or SMP, mandates that each processor be self-
+scheduling. Each processor may have its own ready queue or share a queue. This
+is the most popular way, even though it is more complicated.
+
+``Processor affinity'' refers to a strategy wherein processes are more likely
+to keep using the same processor instead of switching. There are two main kinds
+of processor affinity, ``soft affinity'' and ``hard affinity'', which refer to
+how strict the affinity is.
+
+\subsection{Load Balancing}
+An SMP system takes on a variety of extra challenges. One is load balancing.
+A load balancer works to keep work evenly distributed among CPUs. The load
+balancer has two main tools. ``Puswh migration'' checks the load on each
+processor and moves processes from overloaded CPUs to free ones. ``Pull
+migration'' is done by waiting CPUs looking to pull waiting tasks from the
+queue and start running them.
+
+\section{Real-Time CPU Scheduling}
+Real-time CPU scheduling is a specialized tool for mission-critical systems,
+where delays between making a request and getting the result must be well
+known.
+
+``Soft real-time systems'' have no real guarantee of when processes will be
+scheduled, but tries its best to keep to a deadline. ``Hard real-time systems''
+absolutely must service a task by a certain deadline.
+
+Real-time systems must be very aware of latencies when servicing requests.
+``Interrupt latency'' is the time from arrival of an interrupt to the start of
+the task that will service the interrupt. ``Dispatch latency'' is the time it
+takes for the scheduler to switch a task from one CPU to another.
+
+Real-time schedulers must support preemptive, priority-based scheduling, but
+having these traits only gives a soft guarantee. Hard real-time systems must
+also be able to meet deadlines. To do this, processes must fit into a highly
+defined CPU pattern. The periodic setup has periods, or lengths of time where
+a deadline-having task takes place. There is a deadline that is shorter than
+the full period, and an actual time taken by the process, which should be even
+shorter.
+
+\section{Virtualization and Scheduling}
+Virtualization creates a scenario in which multiple guests share one CPU. Each
+guest does its own scheduling and doesn't know that it is the sole owner of the
+CPU. This added complication can create poor CPU response time, mess up time-
+of-day clocks, and can in general mess with schedulers.
+
+\section{Rate Montonic Scheduling}
+Rate montonic scheduling is a way to achieve priority scheduling. The priority
+of a process is inversely proportional to its period. This means that shorter
+periods have a higher priority and vice versa. This doesn't guarantee that
+deadlines won't be missed.
+
+\section{Earliest Deadline First Scheduling}
+Earliest deadline first scheduling puts processes with a sooner deadline first.
+
+\section{Proportional Share Scheduling}
+There are $T$ ``shares'' in a system, and these shares are given out to all the
+processes. Each process gets $N$ amount of shares, where $N<T$. This guarantees
+that no process will starve, because each process will get at least $1/T$
+processor time. No process can have zero shares.
+
+\end{document}

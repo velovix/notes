@@ -1,0 +1,103 @@
+\title{Chapter 7: Deadlocks}
+\author{Tyler Compton}
+
+\documentclass{article}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\section{Introduction}
+When sharing resources, software takes on a general pattern of requesting the
+resource, using the resource, and releasing the resource to be used by someone
+else. Deadlocks can happen if the data is mutually exclusive, meaning only one
+process can use it at once, the process holding one resource is waiting for
+another resource, resources can only be released when the process decides it's
+finished, and there exists a circular wait, wherein processes end up each
+waiting on one another. No process will ever release the resource the other
+process is waiting on, so the program will never be able to continue. This is
+obviously something we want to avoid.
+
+\section{Resource-Allocation Graph}
+A resource-allocation graph is a graph showing the relationships between
+processes and the resources they request. This is a good way to inspect for
+possible deadlocks.
+
+Resource-allocation graphs are made of verticies and nodes. Verticies are like
+points, and they represent either processes, represented by a circle with a P,
+or resources, which are cubes with an R under them. Nodes come in two types, as
+well. There are request edges, which represent a request from a process to a
+resource, and there are assignment edges, which represent a process holding an
+instance of a request, which point the opposite way of a request edge. Resource
+nodes can have multiple instances inside of them, which are represented by dots
+or squares inside of a resource.
+
+Reading these graphs can betray deadlocks in a software system by looking for
+cycles in the graph. A cycle is a scenario wherein a process owns a resource
+and requests a resource which is owned by a process that owns the resource the
+first process wants. In general, if a graph contains no cycles, there is no
+possibility of deadlocks. If the graph contains a cycle and there is only one
+instance of a resource in that deadlock, then there is definitely a deadlock.
+If there are several instances of the resource types, there may be a deadlock.
+
+\section{Handling Deadlocks}
+Operating systems can choose to handle deadlocks in a variety of ways. The OS
+can choose to try to prevent deadlocks in some way, make attempts to avoid
+deadlocks in some way, let deadlocks happen but provide a way to recover, or
+pretend that deadlocks don't happen and make no effort to achieve that. Many
+operating systems use the latter strategy.
+
+\section{Deadlock Prevention}
+Deadlocks can be prevented in a variety of ways. The operating system can
+avoid mutual exclusion by having read-only resources. Ideally, if no resources
+have to be mutually exclusive, no deadlocks can occur.
+
+The operating system can use ``Hold and Wait'', which requires processes to
+not be holding on to other resources when it requests a new one. This makes
+deadlocks impossible, because no cycles can be formed.
+
+The operating system can use ``No Preemption'', meaning that if a proccess is
+holding a resource and it attempts to get another, the OS will check if the
+requested resource can be immediately given to the process. If it cannot, then
+the operating system will release all resource from the process and add those
+resources to the list of waiting resources. The process will be started again
+only when all those resources can be allocated to the process at once. This can
+completely prevent deadlocks because it stops a potential circular resource
+dependency before it can happen.
+
+The ``Circular Wait'' system dictates a total ordering of all resource types,
+and requires processes to request resources in an increasing order of
+enumeration.
+
+\section{Deadlock Avoidance}
+Deadlock avoidance requires some added information from processes in order to
+make intelligent decisions about resource allocation. The operating system may
+ask what the maximum number of resources of each type the process will need,
+then it may examine the resource allocation state intelligently to try to avoid
+deadlocks. The ``resource allocation state'' is the number of available and
+allocated resources, and the maximum demands of each process.
+
+The operating system can deem that it is in a ``safe state'' so long as there
+exists a sequence of all processes running in the system such that for each
+process $P_i$, resource requests can be satisfied by the currently available
+resources or the resources held by a process $P_j$, where $j$ is less than
+$i$. This creates a hierarchy of resources such that processes after a given
+process will not ever have to make requests to a resource owned by that
+process. If the operating system is in a safe state, there is no possibility of
+deadlocks. If the operating system makes sure that no unsafe states can be
+entered, there will never be a deadlock.
+
+\subsection{Extended Resource-Allocation Graph Scheme}
+In order to make a resource-allocation graph that works with a deadlock
+avoidance scheme, we need some more grammar. A ``claim edge'' is an edge that
+means a process might make a request to a resource. It is shown using a dotted
+line.
+
+During runtime, a resource-allocation graph morphes to reflect the changing
+state of the system. A claim edge becomes a request edge when a process
+actually makes the request. A request edge becomes an assignment edge when the
+process actually gets the resource. When that resource is released, the
+resource edge is converted back to a claim edge.
+
+\end{document}

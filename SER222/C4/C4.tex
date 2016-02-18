@@ -1,0 +1,60 @@
+\documentclass{article}
+\author{Tyler Compton}
+\title{Chapter 4 - Linked Structures - Stacks}
+
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{listings}
+
+\input{code-format}
+\lstset{style=codestyle}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\section{Introduction}
+The standard way to store many objects is with a traditional array. Arrays need
+to be stored in a memory block so that they can be reliably indexed. The
+programming language knows that it must traverse $size(obj)*i$ bytes before
+finding the target. This makes indexing very fast, but it means that arrays
+have to allocate in large blocks. This encourages memory fragmentation and
+makes arrays relatively inflexible, size-wise.
+
+Linked lists are an alternate way to deal with this problem that fixes a lot of
+the issues that come with arrays. Linked lists are made up of individual
+objects that hold references to another object in the list. This creates a
+daisychain of objects. These are called nodes. Since objects are treated
+individually, there's no need to allocate large blocks of memory. It's also very
+easy and cheap to append elements to the end of the list by simply creating it
+and having the last element point to this new object. Deleting elements is also
+very simple.
+
+Linked lists have the disadvantage of making indexing much more expensive. The
+program has to follow this daisychain in order to find the object at an index
+instead of simply jumping there.
+
+\section{Constructing Linked Lists}
+Oftentimes, we'll want to construct linked lists out of objects that weren't
+designed to be in a linked list, so they won't have the place to store
+references to neighbor objects. We can solve this problem by creating a node
+class that contains the object and references to neighbor objects.
+
+\section{Doubly Linked Lists}
+Doubly linked lists contain two references in their nodes: a reference to the
+next object and a reference to the previous one. This makes traversing
+backwards in the list possible. This isn't useful for a stack, but one could
+imagine a situation where this would be helpful.
+
+\section{Cyclicly Linked Lists}
+Cyclicly linked lists are lists whose last element links to the first element.
+Singly and doubly linked lists can also by cyclicly linked lists.
+
+\section{Linked List Stacks}
+Implementing a stack using links is fairly straightforward. Because all we're
+concerned about is the top of the stack, we only need to hold a reference to
+what's on top. The list can be singly linked to the object before it so that we
+can pop off the stack easily.
+
+\end{document}

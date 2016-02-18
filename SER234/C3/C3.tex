@@ -1,0 +1,334 @@
+\documentclass{article}
+\author{Tyler Compton}
+\title{Chapter 3: Processes}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\section{Introduction}
+Operating systems execute a variety of programs. Oftentimes multiple programs
+need to be executed at once. These may include jobs, user programs, or tasks.
+
+Processes are programs in execution that progress in a sequential fashion.
+
+Programs are executable files. They might be called ``passive''. Processes are
+active entities. A program could be said to become a process once it enters
+memory. One program can create several processes, like when a user executes
+multiple instances of the same program.
+
+\section{Process Structure}
+Processes are made of a few sections:
+
+\begin{itemize}
+	\item Program code, known as the ``text secion''
+	\item Program counter, location of instruction to execute
+	\item Stack containing data in memory that has a scope
+	\item Data section, which contains global variables
+	\item Heap, where dynamically allocated memory is stored
+\end{itemize}
+
+The stack starts at the top of a process's memory area. The text starts at the
+bottom. Data is one up from the text. Heap is one up from the data. There is an
+empty area between the stack and the heap that the two can grow into.
+
+\section{Process States}
+Processes go through different states as they move through their life. They
+include the following:
+
+\begin{itemize}
+	\item New, The process is being created
+	\item Running, Instructions are being executed
+	\item Waiting, the process is dormat, waiting for an event
+	\item Ready, the process is waiting to be assigned toa processor
+	\item Terminated, the process has finished
+\end{itemize}
+
+\section{Process Control Block}
+When the operating system has multiple processes, it must share CPU time
+between them. As a result, other processes have to be suspended while one is
+running. We need to be able to keep track of what the suspended processes were
+doing so that they can resume immediately once its their turn as if nothing
+happened.
+
+The PCB is an information section for a process. It incldues the following:
+
+\begin{itemize}
+	\item Current process state
+	\item Program counter, location of instruction to execute
+	\item CPU registers
+	\item CPU scheduling information, priorities and scheduling queue info
+	\item Memory-management information, the memory allocated to the process
+	\item Accounting information, amount of resources used by process
+	\item I/O status information, I/O devices the process is given, list of
+		open files
+\end{itemize}
+
+\section{Threads}
+Processes solve the problem of multiple programs running at once. But what if a
+process wants to execute multiple commands at once? The solution to that
+problem is threads.
+
+It is possible for a process to have multiple program counts are therefore
+multiple places where code can be executed at any given time. These are known
+as threads. Up until now, we've assumed that processes each have one single
+thread, but that isn't always the case. As a result, we must store added
+information in the \ref{Process Control Block}. This will be discussed in the
+next chapter.
+
+\section{Process Scheduling}
+We want to maximize the amount of time we're spending executing instructions
+and minimize the amount of time we spend switching between processes. This is
+the job of the process scheduler. The process scheduler selectes which process
+will be exected next.
+
+The process scheduler maintains scheduling queues of processes. These include:
+
+\begin{itemize}
+	\item Job queue, list of all processes in the system
+	\item Ready queue, list of all processes in main memory that are
+		ready to execute.
+	\item Device queue, list of processes waiting for an I/O device
+\end{itemize}
+
+A single process may migrate through any number of these lists during its
+execution cycle. These allow processes to voluntarily give away processor
+time when it doesn't have any work to do at the moment.
+
+\subsection{Scheduler Types}
+There are multiple types of schedulers that serve different purposes.
+Schedulers work together to switch between processes smartly, so that the
+amount of time where no computations are done is minimal.
+
+Schedulers have to consider the priority of each process. Processes with a high
+priority need to be given CPU time quickly whenever needed. The schedulers
+sacrafice CPU time for low-priority processes to get this done. However, the
+scheduler needs to make sure that even lower-priority processes get some time,
+even in circumstances where higher-priority processes are hogging a lot of CPU
+time. This is a tough challenge.
+ 
+Schedulers look for two general types of processes: ``I/O-bound processes'' and
+``CPU-bound processes''.
+
+I/O-bound processes spend more time waiting on I/O
+than on actual computation. These are characterized by short CPU bursts and a
+lot of down time.
+
+CPU-bound processes consume a lot of CPU times and don't do a lot of waiting.
+These are characterized by a few very long CPU bursts.
+
+\subsubsection{Short-term Scheduler}
+The short-term scheduler selects which process should be executed next and
+allocates CPU time. This scheduler is essential and can, in some circumstances,
+be the only scheduler in the system.
+
+This scheduler is invoked quite a bit (as a matter of milliseconds), and
+therefore must be very fast.
+
+The short-term scheduler is sometimes known as the ``CPU scheduler''.
+
+\subsubsection{Long-term Scheduler}
+The long-term scheduler selects what processes should be brought into the ready
+queue. It controls what processes should even be considered by the short-term
+scheduler and can help keep the short-term scheduler fast on a computer with
+many processes. It controls the degree of multiprogramming, whatever that
+means.
+
+The long-term scheduler is not invoked very much (as a matter of seconds or
+even minutes), so it can be more slow.
+
+The long-term scheduler is also known as the ``job scheduler''.
+
+\subsubsection{Medium-term Scheduler}
+Medium-term schedulers can be added if the amount of programs running at once
+needs to decrease. It is in charge of removing processes from memory, storing
+them on disk, and bringing them back on disk to continue execution.
+
+\section{Multitasking on Mobile}
+Some operating systems that run on limited and mobile hardware only allow one
+process to run at once. This is less common now.
+
+On mobile devices, you will generally only have one foreground process that
+takes up the entire screen. Background processes will run, but their ability to
+affect the user experience may be limited.
+
+\section{Operations on Processes}
+The operating system must be able to create and terminate a process, among
+other things.
+
+\subsection{Process Creation}
+Parent processes can create child processes, which can make their own subchild
+processes. This creates a tree of processes. These processes are managed using
+unique identifiers called ``process identifiers'' or PIDs.
+
+Parent and child processes can share all resources, share subsets of the parent
+resource, or share no resources.
+
+Parents can execute children concurrently or execute, wait for the child to
+finish, and resume.
+
+Child processes share the address space of the parent. The parent loads a
+program into the child.
+
+\subsection{Process Termination}
+When process finishes executing, it askes the parent to delete it with a system
+call, ``exit''. It can also share information with the parent using the system
+call ``wait''.
+
+Parents can terminate a process early using the ``abort'' system call. This can
+be done because the child has used too many resources, the process the child is
+working on no longer needs to be done, or if the parent has finished executing.
+
+Some operating systems do not allow children to run once the parent has
+finished. These are known as orphan processes and are terminated. A parent
+process can use the ``wait'' system call to wait for a child process to finish.
+If no parent is waiting on a child to finish, that process is known as a
+``zombie process''.
+
+\section{Process Example: Chrome}
+Traditionally, operating systems run as a single process. The downside to this
+is that if one page is causing trouble, the entire browser can suffer.
+
+Chrome tackled this issue by having multiple types of processes. The browser
+process is the main process, which creates and manages the main interface. The
+renderer process creates the interface for each tab, for which there is one per
+tab (fixing the issue above). Finally, there are plug-in processes, which run
+on a per-plug-in basis.
+
+\section{Interprocess Communication}
+Processes can be independent or cooperating. Cooperating processes need some
+way to interact with each other. This is done through IPC, or interprocess
+communication. IPC can be done by sharing memory or by passing messages
+through some system.
+
+\subsection{Producer-Consumer Problem}
+The producer-consumer problem is a common programming problem in which one
+producer makes information, and any number of consumers use that information.
+There are a number of ways to solve this problem.
+
+\subsection{Shared Memory}
+With the shared memory model, two or more processes share a chunk of memory and
+use it to interact. There are a variety of ways this shared memory can be
+managed.
+
+We can store the produced information in a variety of containers, called
+buffers. An ``unbounded buffer'' places no real limit on the amount of data
+that it can store. ``Bounded buffers'' work under a fixed size.
+
+When processes use shared memory to communicate, their access of that memory
+must be synchronized to avoid race conditions. This will be discussed in
+Chapter 5.
+
+\subsection{Message Passing}
+The message passing model does not use a shared memory space. Instead, the
+processes send and recieve messages in a way similar to how communication is
+done across the internet. Individual messages can have a fixed or flexible size
+limit.
+
+Before two processes can communicate via message passing, they must establish a
+communication link. This leads to rather complicated problems, like how should
+a link be established? Can links involve more than two processes? How much data
+can you put through a link? Will the size of individual messages be fixed or
+flexible? Should these links be unidirectional or bidirectional? The message
+passing implementation must have an answer to these questions.
+
+\subsubsection{Direct Communication}
+With direct communication, processes must name each other specifically for each
+send and recieve call. This implementation establishes links automatically
+based on what target a process specifies when trying to communicate. Links
+involve only two processes. Only one link can be created per pair. Links are
+usually bidirectional.
+
+\subsubsection{Indirect Communication}
+With indirect communication, messages are put into mailboxes. These mailboxes
+can be shared by processes. The only way data is sent or accessed is by taking
+or putting it inot the mailbox. Many processes can share one mailbox. Links are
+automatically established between processes if they share the same mailbox.
+Pairs may have multiple links between them. Links can be either unidirectional
+or bidirectional.
+
+Processes can create, put into, take from, and destory a mailbox. Instead of
+specifying a process when sending and recieving, processes specify a mailbox.
+
+Imagine a mailbox that three processes share. If $P_1$ puts data into the
+mailbox, should $P_2$ or $P_3$ get it? There are a few solutions to this
+problem. A simple solution is to limit the amount of processes that can share
+a mailbox to two. There could also be a rule that only one process can access
+a mailbox at once. Alternatively, the system could just arbitrarily choose
+who gets the data.
+
+\subsubsection{Synchronization}
+Message passing can be synchronous or asynchronous.
+
+If the implementation is synchronous. Send and recieve operations are blocking
+operations. Send operations block until the target recieves it. Recieve
+operations block until some data is recieved.
+
+Asynchronous implementations don't wait. Send operations send and hope the
+target gets the message. Recieve operations either get data if some exists or
+gets nothing.
+
+Implementations can have hybrid implementations, as well.
+
+\subsubsection{Buffering}
+Messages can be queued up, creating a buffer. If a message system doesn't have
+a buffer, only one piece of data can be offered up at once and processes will
+block while sending until the target recieves the message. This might not
+always be ideal.
+
+The system can have a finite-sized buffer. This allows a sending process to
+send multiple messages before having to wait on the reciever to empty the
+buffer.
+
+A buffer can also be unbounded. This way, the sender never has to wait for the
+reciever.
+
+\section{Sockets}
+Sockets are basic tools for communication. Communication between two processes
+or machines is done using two sockets so that both entities can send data.
+
+Socket connection destinations are given by an IP and port, like
+``162.25.19.8:1625''. Ports under 1024 are ``well known'', and are used for
+standard services like HTTP, SSH, etc. Anything above that can be for custom,
+not often used applications. ``127.0.0.1'' is a special IP address called
+loopback that refers to one's own machine.
+
+There are two types of sockets. TCP sockets are ``connection-oriented'',
+meaning that they use a persistant communication to transfer data. UDP sockets
+are ``connectionless'', meaning that there is no persistant connection
+required.
+
+\section{Remote Procedure Calls}
+Remote procedure call (RPC) abstracts procedure calls between processes on
+networked systems. This allows a program to delegate work to another process
+running somewhere else, but do so in an abstracted way that feels like the
+process itself is doing the work.
+
+Data representation is done using the External Data Representation (XDL) format
+so that differences in data representation between archetectures isn't a
+problem.
+
+Of course, when dealing with network communication, there are more chances for
+failure than if the program was actually doing the work locally. RPC can make a
+guarantee that the message will be recieved or else provide a way of letting
+the user know it failed. In other words, the message will be delivered
+``exactly once'' instead of ``at most once''.
+
+\section{Pipes}
+Pipes allow processes to communicate, much like other mechanisms written about
+here.
+
+\subsection{Ordinary Pipes}
+Ordinary pipes allow for communication in a producer-consumer style. The
+producer writes to one end and the reader reads from the other end, making
+ordinary pipes unidirectional. Naturally, there is a parent-child relationship
+here. They are also known as anonymous pipes. They are only accessible by the
+two processes sharing the pipe.
+
+\subsection{Named Pipes}
+Named pipes are more powerful than ordinary pipes. Firstly, communication is
+bidirectional. Because of this, there is no parent-child relationship. The
+processes are peers. Any amount of processes can use a named pipe.
+
+\end{document}

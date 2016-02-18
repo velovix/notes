@@ -1,0 +1,89 @@
+\documentclass{article}
+\author{Tyler Compton}
+\title{Chapter 3 - Introduction to Collections}
+
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{listings}
+
+\input{code-format}
+\lstset{style=codestyle}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\section{Introduction}
+Collections are objects that hold and organize other objects. Collections have
+methods and other tooling for accessing and manipulating their elements.
+
+There are quite a few collections that have been defined in the Java standard
+library. Collections are usually in charge of maintaining a form of
+relationship between elements. Some of them are linear, meaning that they have
+some kind of order where every element is after and/or before another element.
+Others take on a more complicated relationship, like a tree. Different kinds of
+collections have many attributes that make them unique.
+
+\section{Abstraction}
+Abstractions hide the details to make a concept easier to manage. Every object
+is an abstraction in that it provides an interface to interact with the object.
+Other parts of the program that use the object do not need to know exactly how
+the methods it uses are implemented, only that it does what is advertised.
+
+Many objects engage in information hiding, in that direct access to its
+variables is not allowed outside of the object itself. Access is done through
+methods, which can have any amount of AOP elements inside of them.
+
+\subsection{Abstract Data Types}
+A data type, at least in object-oriented programming terms, is a group of
+values and behavior that operates on those values. These come in the form of
+variables and methods.
+
+Abstract data types are not language builtins and represent some higher level
+concept. When you use abstract data types, you're dealing with a concept that
+isn't tied to the programming language. When we work with an implementation of
+a stack in Java, we're thinking about it in terms of a stack, not a language
+primitive.
+
+A data structure is a set of programming language constructs and techniques to
+implement a collection.
+
+All these terms are easily confused and are often used interchangably in casual
+language.
+
+\section{Stacks}
+Stacks are simple collections that provide a minimal interface for storing
+data. Stacks are metaphors for stacks in real life. When you add an element,
+that element is added to the top of the stack. The only way you can access
+elements is by taking them off the top of the stack.
+
+Stacks are "last in, first out" (LIFO) data structures, meaning that after
+putting in a certain amount of elements, the last element to be put in will be
+the first accessible one, because it is at the top of the stack.
+
+When an element is put on to the stack, we say we are ``pushing'' that element
+onto the stack. When an element is taken from the top, we call it ``popping``
+the element off the stack. Most implementations also allow users to peek at the
+top of the stack without taking it off the stack. They also generally allow the
+user to check the size of the stack, or at the very least check to see if it's
+empty.
+
+\section{Generics}
+Writing code in Java that can operate on multiple types used to involve
+interacting with the Object type. Unfortunately, this required a lot of runtime
+type checking in the form of casting in order to stay in control of what types
+are allowed to be used.
+
+The new way to do this is to use Java's native support for generic typing.
+Generic classes and methods can be written that refer to the type being used
+generically. The type is specified automatically at runtime depending on how
+the user uses the generic class.
+
+\section{Capacity}
+Capacity is the amount of elements a container can store. In Java, there's no
+way to change the capacity of an array. Java will instead create a new array
+with the new capacity. In Java, containers have optimizations that make this
+happen less frequently by requesting more space than you actually need.
+
+\end{document}

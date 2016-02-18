@@ -1,0 +1,54 @@
+\documentclass{article}
+\author{Tyler Compton}
+\title{Chapter 6 - Lists}
+
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{listings}
+
+\input{code-format}
+\lstset{style=codestyle}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\section{Introduction}
+A list is another type of collection like stacks or queues. It is a linear
+collection in that it is one-dimensional, order-wise. Lists are very generic
+and flexible. You can add, access, and remove from anywhere in the list at any
+time.
+
+\section{Operations}
+Queues have a standard set of operations.
+
+\begin{itemize}
+	\item enqueue: Add an item to the queue
+	\item dequeue: Remove an item from the end of the queue
+	\item front: Examine the item on the end of the queue
+	\item isEmpty: Pretty self-explanitory
+	\item size: The amount of items on the queue
+	\item toString: I don't think this actually counts, but whatever
+\end{itemize}
+
+\section{Ordered Lists}
+Ordered lists are lists whose elements are always ordered by some
+characteristic of the elements, like a high score or alphabetically.
+
+\section{Unordered Lists}
+Ordered lists, unlike what their name implies, does in fact have order, but
+the order is decided by the user. If the user wants to put a new element at the
+beginning of the list, the user may do that.
+
+\section{Indexed Lists}
+Indexed lists are like ordered lists, but has the added feature that elements
+are accessed using their index on the list. If an element is added before other
+elements, all the proceeding elements will be updated. For that reason, it is
+not necessarily safe to assume that an element is always tied to a given index.
+
+In Java, the List interface specifies the interface for an indexed lists. This
+allows you to index a list backed by a linked data structure, which isn't very
+efficient.
+
+\end{document}

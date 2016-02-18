@@ -1,0 +1,211 @@
+\documentclass{article}
+\author{Tyler Compton}
+\title{Chapter 4: Threads}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\section{Introduction}
+Threads are the primere way that programs can execute multiple tasks at once.
+They are more lightweight than processes. They are often used to avoid having
+the program lock up when a lengthy task is running, like doing network requests
+or reading from storage.
+
+The comparatively lightweight feel of a thread comes from the fact that they
+share memory space with the parent process. This also makes communicating
+between threads easier than communicating between processes. Finally, thread
+switching is easier for the processor than process switching.
+
+The primere benefit of threading code is responsiveness. By delegating slow
+tasks to a separate thread from the one in charge of handling user input, users
+experience a fast, responsive environment regardless of how much work a
+program is doing in the background.
+
+\section{Multicore Programming}
+Multicore processors provide a new opportunity for software designers to
+complete tasks efficiently. However, doing so can make programming a more
+complicated task in some ways. These challenges include, but are not limited to
+the following.
+
+\begin{itemize}
+	\item Dividing activities intelligently can be challenging
+	\item Balance
+	\item Data splitting
+	\item Data dependency
+	\item Testing and debugging, a linear system is simply easier to debug
+\end{itemize}
+
+The term ``parallelism'' refers to performing multiple tasks at the same time.
+
+The term ``concurrency'' refers to performing multiple tasks, but not
+necessarily at the same time. In a concurrent, but not parallel system,
+multiple threads will be switched between so that each task is making progress,
+but not at the same time.
+
+All parallel programs are concurrent, but not all concurrent programs are
+parallel.
+
+Activities can be divided in a variety of ways. ``Data parallelism'' splits up
+data across cores, with the same operation being executed on each. ``Task
+parallelism'' distributes threads across cores, with each one accomplishing a
+different task.
+
+As processors continue to improve, so do their thread count support. Modern
+processors often have ``hardware threads'' in each core. Many quad-core
+machines have two hardware threads each, making 8 theoretical cores.
+
+\section{Amdahl's Law}
+Amdahl's Law identifies performance gains from adding additional cores to an
+application with both serial (linear) and parallel components.
+
+$speedup \leq \frac{1}{S + \frac{1-S}{N}}$
+
+... where S is the serial portion and N is the processing cores.
+
+As N approaches infinity, speedup approaches $\frac{1}{S}$. The serial
+proportion of the program has a disproportionately large effect on performance.
+
+\section{Thread Types}
+There exists two kinds of threads: ``user threads'' and ``kernel threads''.
+
+``User threads'' are threads managed by user-level thread libraries. Examples
+of these libraries include POSIX pthreads, Windows threads, and Java threads.
+
+``Kernel threads'' are threads managed by the kernel. Most every modern
+operating system has these.
+
+\section{Multithreading Models}
+
+\subsection{Many-to-One}
+In a many-to-one system, many user-level threads are mapped to a single kernel-
+level thread. If one of these threads blocks, all of them block and feel the
+pain. If two threads share the same kernel thread, they will not be able to
+execute at the same time. This system is not very popular, but Solaris Green
+Threads and GNU Portable Threads use it.
+
+\subsection{One-to-One}
+In a one-to-one system, each user-level thread maps to a kernel thread. Because
+each user thread maps to a real kernel thread, threads are more likely to run
+in parallel, so more work may get done. The number of threads made might need
+to be restricted, since one thread really does mean one thread. Most modern
+operating systems use this, including Windows and Linux.
+
+\subsection{Many-to-Many}
+In a many-to-many system, there can be any number of kernel threads to user
+threads. The operating system can make an intelligent decision about how many
+kernel threads are needed, so the burdan can be off user-space programers, to
+some extent. Windows supports this with the ThreadFiber package.
+
+\subsection{Two-Level}
+The two-level system is very much like the many-to-many system, but it allows
+user threads to be bound to kernel threads. Some operating systems I've never
+heard of use this, and older versions of Solaris.
+
+\section{Thread Libraries}
+Thread libraries give user programs an API for creating and managing threads.
+These can be implemented entirely in user space or at the kernel level backed
+by the operating system.
+
+\subsection{PThreads}
+PThreads is a POSIX standard API for creating and synchronizing threads. It can
+be implemented in user space or kernel space. PThreads itself is just the
+standard, not an implementation. Implementations can be found on Unix and Unix-
+like systems, such as Linux, OSX, and Solaris.
+
+\subsection{Windows Threads}
+Windows has a thread library as well. Anyway...
+
+\subsection{Java Threads}
+Java provides its own thread library managed by the JVM as a way of abstracting
+away operating system differences. In actuality, the implementation of Java
+threads use the thread library of the parent operating system, but to
+developers this shouldn't matter.
+
+\section{Implicit Threading}
+Implicit threading is threading managed by the compiler and runtime instead of
+directly by the programmer. This alleviates the programmer of a lot of
+responsibility as the thread count of an application increases.
+
+\subsection{Thread Pools}
+Thread pools are collections of threads that wait to be given work. These are
+nice because they can avoid the initial cost of creating a thread and can make
+it easier to have multiple things done sort of at once without needing a thread
+for each task. The amount of threads can be constant and still be able to
+support any number of somewhat simultaneous tasks.
+
+\subsection{OpenMP}
+OpenMP is another thread abstraction that allows programmers to mark parts of a
+program as parallel-ready. OpenMP will manage the creation of threads based on
+these hints. Parallel pieces may or may not create new threads. That decision is
+the job of OpenMP, not the programmer.
+
+\subsection{Grand Central Dispatch}
+Grand Central Dispatch is an OSX and iOS technology that is similar to OpenMP
+in that areas of code are marked as parallel-ready and GCD manages the rest.
+When a parallel-ready portion of code is hit, it is added to the dispatch queue
+and will be run when a thread in the thread pool is ready.
+
+GCD has two kinds of dispatch queues. The serial queue has a list of blocks
+that are executed one-by-one. This queue is created on a per-process basis.
+Programmers can make additional series queues within a single program.
+
+The concurrent queue has a list of blocks as well, but multiple blocks can be
+removed and executed at once. There are three of these system-wide queues: low,
+default, and high-priority.
+
+\section{Signal Handling}
+Signals are used in UNIX to notify processes of events. Signal handlers are
+used to recieve and do something about these signals. This whole process is
+done in the given order.
+
+\begin{enumerate}
+	\item A signal is created from an event
+	\item The signal is delivered to the process
+	\item The signal is handled by the user-defined handler or, if none exists,
+		the default handler
+\end{enumerate}
+
+Every signal has a default handler. It is the job of the program to have a
+user-defined handler if it wants to do an operation.
+
+The operating system must decide where to send a signal when one happens. For a
+program with one process and thread, this decision is easy. However, for
+programs with multiple processes and threads, the operating system must decide
+how to deal with this ambiguity. The operating system may try to decide what
+thread the signal most applies to, deliver it to every thread, deliver it to
+certain threads, or require programs to assign a thread to recieve signals.
+
+\section{Thread Termination}
+Sometimes, a thread has to be destroyed before it has finished executing. When
+attempting to terminate a thread, that thread becomes the ``target thread''.
+
+Threads can be terminated asynchronously, which terminates the thread
+immediately. Alternatively, they can be terminated in a deferred way, which
+relies on the thread to routinely check if it needs to terminate itself and do
+so.
+
+\subsection{Thread Cancellation}
+Thread cancellation is done as a request. A thread can disable cancellation so
+that a cancel request has to wait until the thread allows itself to be
+canceled.
+
+By default, cancellation is done in a deferred way, meaning that the thread has
+to get to a ``cancellation point'' before it can be canceled. It is up to the
+thread to decide when it is at one of these points.
+
+After a thread is cancelled, the cleanup handler is envoked.
+
+\section{Thread-Local Storage}
+Thread-local storage is data that is given to a thread. Unlike local variables,
+thread-local storage has a thread-global scope that spans across functions.
+This kind of storage is useful when somebody else (like a thread pool) owns the
+threads.
+
+\section{Linux Threads}
+Linux calls threads tasks. Threads are created with the ``clone()'' system
+call. This system call makes the child task share the address space of the
+parent task (which is a process).
+
+\end{document}

@@ -1,0 +1,53 @@
+\documentclass{article}
+\author{Tyler Compton}
+\title{Chapter 5 - Queues}
+
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{listings}
+
+\input{code-format}
+\lstset{style=codestyle}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\section{Introduction}
+A queue is a collection whose elements are added on one end and removed on
+another. This creates a first in, first out system, which preserves order.
+Grocery lines, cars at a stop light, and assembly lines are all examples of
+queues in real life.
+
+\section{Operations}
+Queues have a standard set of operations.
+
+\begin{itemize}
+	\item enqueue: Add an item to the queue
+	\item dequeue: Remove an item from the end of the queue
+	\item front: Examine the item on the end of the queue
+	\item isEmpty: Pretty self-explanitory
+	\item size: The amount of items on the queue
+	\item toString: I don't think this actually counts, but whatever
+\end{itemize}
+
+\section{Queue Implementations}
+A queue can be implemented as a linked list by keeping track of the queue head
+node (the value about to be dequeued) and the end node (the value that was just
+queued). This is unlike a general linked list implementation in that we store
+two nodes, but if we didn't do it that way, we'd have to use a doubly linked
+list and would have to traverse the list for every operation.
+
+Queues can also be implemented in an array, but doing so can be kind of tricky
+because we want to avoid moving every element over one when queueing an
+element. To avoid this, we construct a circular array. Circular arrays are
+arrays that conceptually loop back on themselves. If the length of a circular
+array is 10, then element 9 would preceed element 0. We have two integers that
+keep track of the index of the front and end of the queue. Since the array is a
+circle, it shouldn't matter what element we start at. A correct implementation
+would allow the user to push 'n' elements into the queue, where n is the size
+of the circular array, regardless of what index we start at. Expanding the size
+of an array is best done by simply making a new array and copying data.
+
+\end{document}

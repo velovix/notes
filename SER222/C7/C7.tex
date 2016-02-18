@@ -1,0 +1,59 @@
+\title{Chapter 7: Iterators}
+\author{Tyler Compton}
+
+\documentclass{article}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\section{Introduction}
+We oftentimes want to loop through every element in a collection, but doing so
+means different things for different types of collections. For this we have
+another abstraction tool: Iterators. Iterators allow the user to jump from
+element to element and is helpful for data processing.
+
+\section{API}
+Iteration is made of two classes, Iterable and the Iterator itself. The
+Iterable is a class used to define an Iterator. An Iterator is the object
+itself that can be looped through. The Collection itself is an Iterable, not an
+Iterator. The Collection class can create an Iterator but is not one itself.
+
+The Iterator interface supplies a basic API:
+
+\begin{itemize}
+    \item boolean hasNext() // True if there are more elements
+    \item E next() // Returns the next element
+    \item void remove() // Deletes the element that was just returned
+\end{itemize}
+
+The Iterable interface is very simple:
+
+\begintemize}
+
+\section{Use}
+The obvious use of an iterator is for situations where you need to do something
+about each element in a Collection. You can use it in a while loop, or use
+Java's fancy ``foreach'' syntax.
+
+\begin{verbatim}
+for (E item : myCol) {
+    // Do some processing
+}
+\end{verbatim}
+
+However, you may want to use the iterator yourself and skip the foreach syntax
+if perhaps you aren't interested in every element or if you want to use the
+``remove'' method. Since foreach does not give access to the iterator, you
+can't use remove if you use foreach.
+
+Iterators don't necessarily guarantee any kind of order unless the
+documentation says otherwise.
+
+Iterators should not be used while their underlying collection is being
+modified. Many implementations in Java will ``fail-fast'' if that happens,
+meaning that an exception will be thrown if the collection is
+
+
+\end{document}

@@ -1,0 +1,182 @@
+\documentclass{article}
+\author{Tyler Compton}
+\title{Chapter 2: Operating System Structures}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\section{Operating System Services}
+Operating systems provide a variety of services to allow for the execution of
+programs. These include services that help the user choose what programs they
+would like to execute and how they shall execute.
+
+\subsection{Program Execution}
+The operating system must be able to load a program into memory, start its
+execution, and end execution either normally or in the case of an error.
+
+\subsection{User Interface}
+A user interface must be provided for the user to be able to interact with the
+operating system and other programs. Modern operating systems provide a
+modern graphical or command line interface for this purpose.
+
+\subsubsection{Command Line Interfaces}
+As mentioned earlier, operating systems tend to come with a command line
+interface where commands can be entered directly. This is sometimes implemented
+in the kernel. There can be multiple flavors that an operating system can
+provide. Bash is a common one. These are called shells.
+
+\subsubsection{GUI}
+Modern systems can run a desktop interface that is more friendly and these days
+more common. Users tend to interact with these systems using keyboards, mice,
+and almost certainly a monitor. The creator of this form of user interface is
+Xerox PARC.
+
+\subsection{I/O Operation}
+The operating system must be able to provide I/O operations to programs when
+necessary. File I/O is a common task that programs need and the operating
+system is in charge of providing.
+
+\subsection{File System Manipulation}
+The operating system must provide an interface to interact with files, namely
+the ability to create, delete, and edit them. Other operations include looking
+in directories and changing permissions.
+
+\subsection{Communications}
+Network connectivity to other computers or to processes in the same computer
+must be arranged by the operating system.
+
+\subsection{Error Detection}
+Errors must be handled in some way.
+
+\subsection{Resource Allocation}
+The operating system handles how resources can be accessed. This is especially
+important when multiple programs are running at once and trying to access
+resources at the same time.
+
+Resources include the CPU, memory, files, or network access.
+
+The operating system must also keep track of how much of each resource a
+program is using.
+
+\subsection{Permissions}
+The operating system has to be able to protect itself from programs that either
+accidentally or purposefully try to trample over it. This is done through
+managing permissions, among other methods.
+
+\section{System Calls}
+System calls are an interface the operating system provides to programs that
+allow them to ask the operating system to do things that the program itself
+cannot normally do. System calls are the interface between user space and
+kernel space.
+
+These are often not accessed directly by programs. Languages usually expose an
+API in the standard library that do the system calls internally.
+
+Each kind of system call is usually assigned a unique number. A table of these
+system calls and their numbers is called a system-call interface.
+
+Programs should not have to know anything about how the operating system
+achieves the tasks system calls do. They just have to use the provided API
+appropriately.
+
+In some circumstances, the kernel needs information from the program before it
+can execute a system call. An example would be a call to open a file. The
+program must tell the kernel what file it wants to open. This information can
+be passed in registers, stored in memory (which is how Linux does it), or put
+onto a stack. A nice bonus to the memory block and stack implementations is
+that many parameters can be passed at once.
+
+\subsection{Types of System Calls}
+\begin{itemize}
+	\item Create a process
+	\item Abort a process
+	\item Execute a command
+	\item Managing process attributes
+	\item Sleeping
+	\item Waiting for events
+	\item Memory management
+	\item Memory dumps, in case of a critical error
+	\item Debugger functionality, like single step execution
+	\item Locks for concurrent accesss of resources
+	\item File management
+	\item Device management
+	\item Accessing system data, like time, process info, file info, etc.
+	\item Communication
+	\item Permissions
+\end{itemize}
+
+\section{Example: MS-DOS}
+MS-DOS is a relatively primitive operating system. Its operation is very
+simple.
+
+When MS-DOS is booted up, it kicks the user to the terminal. Only one program
+besides the kernel can be run at once. There's no concept of processes and
+there's only one memory space. When a program is executed, it overwrites
+everything in memory except for the kernel. When a program is exited, the shell
+reloads.
+
+\section{Example: BSD}
+BSD is a Unix-like operating system. It is much more complicated and capable
+then MS-DOS. It is short for Berkley Software Distribution.
+
+BSD is a multitasking operating system. When the operating system starts, it
+will boot the user to the shell, but this shell can be chosen. Processes
+do exist, and can be forked off by the shell. The shell continues to run even
+as the program runs, and continues after the current program is done running.
+Programs can tell the shell whether execution was successful or not.
+
+\section{System Programs}
+System programs are programs that interface with system calls in a more
+friendly way. Common ones include:
+
+\begin{itemize}
+	\item File creation, deletion, reading, writing, etc.
+	\item Status information. Date, available memory, disk space, etc.
+	\item Programming language support. Compilers, assemblers, etc.
+	\item Program execution. Absolute loaders, relocatable loaders,
+		linkage, editors, etc.
+	\item Communication among processes, users, etc.
+	\item Miscelaneous background services that manage various system tasks
+\end{itemize}
+
+Programs can interact with these programs instead of doing system calls
+directly, which is more convenient.
+
+\section{Implementation}
+Operating systems are and have been wrote in a variety of languages. Early
+operating systems were written in assembly. Early programming languages like
+Alogol started becoming popular. Now, systems languages like C and C++ are most
+commonly used.
+
+A modern operating system is generally written in C with key parts in assembly.
+Higher level portions are written in any number of languages.
+
+\section{Structure}
+Operating systems are very large. They can be structured in a variety of
+different ways.
+
+\subsection{Simple}
+Early operating systems like MS-DOS provide very little in the way of resource
+management or protection. These operating systems aren't common any more, but
+had the advantage of giving programs a lot of optimization potential because
+they can basically do anything they want.
+
+\subsection{Layered}
+Unix operating systems are significantly more complicated. The operating system
+is put into layers. User programs live in user space, where a system call
+interface is provided to bridge it to kernel space. The kernel is what manages
+low level functionality like devices and memory.
+
+\subsection{Microkernel}
+Microkernel infrastructure is an attempt to move more kernel functionality into
+user space.
+
+Traditional monolithic kernels rely on the quality of modules,
+because it shares memory space with them. If someone writes a kernel module
+that makes memory errors, the entire operating system could go down.
+Microkernels wouldn't have that problem because they give modules their own
+memory space.
+
+\end{document}

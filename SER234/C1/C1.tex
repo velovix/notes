@@ -1,0 +1,136 @@
+\documentclass{article}
+\author{Tyler Compton}
+\title{Chapter 1 - Introduction}
+
+\usepackage{float}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\section{Introduction}
+What is an operating system? The concept is hard to define. Any program that
+comes with the computer is an approximation. The operating system definitely
+includes the kernel, a program that is always running. It is in charge of
+managing devices, which is the basic tasks that operating systems need to
+accomplish.
+
+A bootstrap program is the program that starts the kernel early on in the boot
+process. Usually stored in a ROM or EPROM. Called firmware. Traditionally, a
+virus would infect the computer, then write to the bootstrap program to make it
+execute a rouge kernel instead of the legitimate one. This was very hard to get
+rid of, because you couldn't boot up your computer wihtout it going to the
+rouge kernel.
+
+\section{Computer System Organization}
+
+The CPU is where instructions are executed. Memory or RAM is where instructions
+and data are stored. Non-volatile memory, AKA a hard drive or solid state disk
+is for data that needs to persist between reboots, like the kernel.
+
+\section{Managing the Needs of Multiple Devices}
+These various devices may need attention from the kernel at any given time. How
+can we find out which ones need attention?
+
+\subsection{Polling}
+Ask each device if it needs attention in order, when the last device is hit, go
+back to the first. This method is simple, but inefficient. The kernel ends up
+spending a lot of time accomplishing nothing.
+
+\subsection{Interrupts}
+The device sends an alert through the interrupt vector, which has addresses of
+all the service routines. A trap or exception is a software-generated interrupt
+for requests or errors. This is the way modern operating systems work. If two
+devices need attention at the same time, the kernel must choose intelligently
+which one will be addressed first.
+
+Critical interrupts shouldn't be happening all the time, so the CPU has a lot
+of downtime. The CPU needs this downtime to execute and switch between
+programs.
+
+\section{Storage Device Hierarchy}
+
+Storage falls into a natural hierarchy based on read/write speed and storage
+capacity. Below is a typical example of a storage device hierarchy on a modern
+machine.
+
+\begin{enumerate}
+	\item Registers
+	\item Cache
+	\item Main Memory
+	\item Hard Disk
+	\item Optical Disks
+\end{enumerate}
+
+\section{Caching}
+
+Caching is an important way to speed up the storage device hierarchy,
+specifically when reading from slower storage devices. A commonly accessed
+resource that lives in a slower storage device can be stored temporarily in a
+faster storage device. This can speed up access to that resource significantly,
+which is helpful if that resource is accessed frequently.
+
+An example would be Netflix. A popular movie may streamed quite a few times at
+once. It would be costly to have to consult the hard disk every time someone
+tries to stream that movie. So, Netflix will store these popular movies in a
+cache, oftentimes in RAM, which can be accessed much faster.
+
+Caching is a tough programming problem, because the progarm has to be able to
+intelligently figure out what should be cached. This can be based off of
+frequency of use. However, if a resource is constantly changing, it can be hard
+to keep the cache updated. Dirty caches can result poor user experiences
+because the program doesn't seem to be reacting to user input, even though it
+is. It can be difficult to notify a cache that it needs to be updated,
+especially if the cache is being stored remotely, like in a user's system.
+
+\section{Multicore Processors}
+
+Traditionally, the computer would only have one general purpose processor and
+potentially a few special purpose processors. However, multicore processors are
+becoming increasingly common. Each core of a multicore processor is itself its
+own processor that has its own register and cache, but all share access to
+other computing devices, like storage.
+
+Multicore processors have the ability to do multiple things truly at once, but
+introduce new challenges. Access to shared resources must be orchestrated
+carefully and processes have to be shared across processors in an efficient
+way.
+
+On a higher level, distributed systems are becoming increasingly common as
+cloud software solutions. Instead of having a task executed by one computer
+with multiple pyrocessing cores, tasks can be shared among multiple computers.
+This allows many tasks to be to be executed quickly and at once. The same
+and more problems apply to these systems that apply to multicore processors.
+
+\section{Kernels}
+
+Even though the kernel is the authority on device access, it must give programs
+access to the processor. This access is still restricted, however. Processors
+have different modes that give programs varying amounts of access. The kernel
+gives access to programs in user mode, so that programs cannot completely
+destroy the computer.
+
+Basic programs are executed in user space. However, direct access to devices is
+done in kernel space. User programs can request the kernel to act on a device
+using system calls. When a program makes a system call, execution is
+transferred to the kernel, the operation is performed, and execution is
+transferred back to the user program.
+
+\section{Virtualization}
+
+Operating systems can be executed within other operating systems using a
+program that provides a fake environment that a guest operating system can run
+in. The guest operating system should have no idea that it is being run as a
+guest.
+
+A guest operating system can be built for a different archetecture than the
+host's, but doing so requires an emulator. Emulators are generally the slowest
+method of virtualization because the emulator needs to convert commands of one
+type to another.
+
+Quicker virtualization can be done if both the guest and host operating systems
+use the same archetecture. Programs being executed in the guest environment can
+have commands executed more directly by the host processor.
+
+\end{document}
