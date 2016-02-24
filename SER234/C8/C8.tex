@@ -1,0 +1,194 @@
+\title{Chapter 8: Main Memory}
+\author{Tyler Compton}
+
+\documentclass{article}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\section{Introduction}
+Like all computing resources, memory needs to be managed. Memory is far from an
+exception. Programs must be brought from disk to memory before being run,
+because persistant storage is slow and the memory and registers are the only
+storage mediums that the processor has direct access to. Putting the program in
+memory makes execution faster and allows the processor access, which is
+obviously necessary.
+
+Unfortunately, even memory is fairly slow, and accessing a memory address can
+take many clock cycles, which can lead to what's called a ``stall''. Because of
+this, we have a cache system that lives between memory and the processor.
+
+\section{Address Protection}
+A process has a section of memory that it calls its own. The process's memory
+address starts at 0x0 at the beginning of that section, and ends at the
+section's end. These limits are defined by the base and limit registers. The
+base register contains the beginning address of a process's memory section,
+while the limit register sits at the ending address. The CPU uses these
+registers to check memory operations done by a process to make sure it fits
+within these boundries.
+
+\section{Programs and Address Locations}
+If for some reason the memory location that a program will be run in can be
+known at compile-time, ``absolute code'' can be generated, meaning that the
+actual memory address locations are hard coded into the program and the program
+must be recompiled if that changes. In the modern age, this is usually not the
+case.
+
+If the memory addresses can only be known at load-time, programs must be
+compiled as ``relocatable code'', so that the memory addresses can be given
+when the program is loaded.
+
+In some cases, the memory location may not even stay consistant from load-time.
+In this case, memory binding is delayed until runtime. This allows programs to
+be moved around as they run. This requires hardware support for address maps.
+
+These more flexible ways of addressing memory are used when a program uses
+shared libraries. When a program uses shared libraries, the library code isn't
+in the actual program, so the program can not know where that code will be at
+runtime.
+
+\section{Logical and Physical Addresses}
+In modern computing, the CPU provides an abstraction between physical memory
+addresses and the addresses used by programs. The CPU generates what's called a
+``logical address'', which maps to a real physical address which refers to
+where the data actually is on the RAM chip. Logical and physical addresses are
+the same on systems that can determine memory addresses at compile time or at
+load time. For systems that only know addresses at runtime, logical and
+physical addresses will differ.
+
+Logical addresses that are generated from a program are stored in the ``logical
+address space''. Physical addresses that are generated from a program are
+stored in the ``physical address space''.
+
+\section{Memory Management Unit}
+Memory management units are pieces of hardware that map virtual address to
+physical addresses. There are many ways to accomplish this. A simple example
+involves having a relocation register that contains a value that is added to
+all logical addresses, with the result being the physical address. MS-DOS on
+Intel 80x86 used this scheme.
+
+For all memory management schemes, user programs deal directly with logical
+addresses, but never physical addresses.
+
+\subsection{Dynamic Allocation With Relocation Register}
+When dynamically allocating using the relocation register system, the
+relocation is not done until the memory address is requested. This has the
+advantage of low memory requirements, because an unused routine is never
+created. Its simplicity also means that no special operating system support is
+required. This can all be implemented in the program (I guess? But I was under
+the impression that user programs don't ever access physical memory?)
+
+\section{Dynamic Linking}
+In a traditional staticly linked program, the program code and all its
+libraries are combined into one executable file. This has the disadvantage of
+having multiple programs contain copies of the same library. To fix this
+problem, we can use dynamic linking. With dynamic linking, libraries are pulled
+into the program as it starts. The program contains a stub that represents
+where the library code will go. When the dynamic library is loaded, the stub is
+replaced with the actual library.
+
+Dynamic linking has the benefit of shrinking binary size by getting rid of the
+repitition that staticly linked programs create. It also allows for a library
+to be patched without having to recompile the programs that use it.
+
+Libraries that are dynamically linked are known as ``shared libraries'',
+because they are shared between programs.
+
+\section{Swapping}
+Programs can be swapped out of memory and into a ``backing store'' (like the
+hard drive) temporarily, then pulled back out and be allowed to continue. This
+can allow a memory-starved computer to continue running by swapping background
+or currently unused programs to allow other programs to take that memory.
+
+Specifically, a ``backing store'' refers to a fast (?) disk large enough to
+hold all programs for all users.
+
+``Roll in, roll out'' is a strategy of swapping programs wherein low-priority
+programs are swapped in favor of higher-priority programs.
+
+Most of the time spent swapping is done in the transfer time between memory and
+the backing store. Of course, as the amount of memory being swapped increases,
+so does the time spent doing it.
+
+The operating system maintains a ``ready queue'' with processes waiting to be
+executed that may be in swap space.
+
+When a swapped program returns into memeory, does it have to be in the same
+place it used to be in? Potentially, depending on the address binding method.
+Runtime binding systems will probably not need to worry about this.
+
+A swapping system is found on all major operating systems, but is not used
+unless it has to be. The swapping starts disabled, but is enabled if a lot of
+memory is used, then disabled again whenever possible.
+
+Swapping is limited when I/O is being used. Programs with pending I/O can not
+be swapped out, because the I/O data will go to the wrong process. This can be
+avoided if all I/O is redirected through the kernel, which is known as ``double
+buffering'', but unsurprisingly, this causes overhead.
+
+\subsection{Swapping on Mobile}
+Mobile systems don't often support swapping, because they often have limited
+persistant storage. With flash memory, the hardware may have a limit on write
+cycles, which makes the high write demand of swapping less attractive.
+Oftentimes, the write speed on flash memory can be poor, as well, which
+exaserbates the issue of swap time.
+
+On iOS, processes are asked to give up memory when available memory is low.
+If a program doesn't comply, it may be terminated.
+
+Android terminates apps when memory is low, but saves the application state on
+flash memory before doing so, which allows the app to be reopened more quickly.
+
+\section{Contiguous Allocation}
+Early operating systems used a contiguous allocation system for allocating
+data. The operating system lives in a lower memeory area, and user applications
+live in a higher memory area. This results in two partitions of memory.
+With contiguous allocation, processes are given an unbroken block of memory to
+work with. This system works well with reallocation registers because only two
+indicators are needed to express where a contiguous block is.
+
+Contiguous allocation has the disadvantage of creating memory holes. When
+the OS can only give out memory in large blocks, it has to fit these blocks
+intelligently into memory and ``holes'', small areas between blocks that are
+essentially unusable, are created.
+
+\section{Multi-Partition Allocation}
+When an OS uses multi-partition allocation, it gives a process a block of
+memory with a size set to how much the process needs. When a new process is
+created, the OS will try to put it into a memory hole.
+
+\subsection{Allocating to Holes}
+There are a few ways that the OS can decide what hole to put a memory block in.
+
+The ``first-fit'' strategy tries to put process memory into the first available
+hole.
+
+The ``best-fit'' strategy tries to put process memory into the smallest
+available hole that will still be usable by the process. This allows the OS to
+produce the smallest leftover holes, but has the disadvantage of requiring the
+OS to search the entire list of holes unless some cleverness is done.
+
+The ``worst-fit'' strategy tries to put process memory into the largest
+available hole. This has the result of producing the largest leftover holes.
+It turns out that first-fit and best-fit are better than this strategy in terms
+of speed and storage utilization, so this strategy is probably useless. Plus,
+it has the word ``worst'' in it, which is never a good sign.
+
+\section{Fragmentation}
+``External fragmentation'' happens when the total memory space exists to
+satisfy a request, but memory spaces are split up.
+
+``Internal fragmentation'' happens when the memory a process owns might be
+slightly larger than what it needs.
+
+Fragmentation should be avoided in order to make best use of the memory we
+have. Fragmentation can be minimized using ``compaction''. Compaction is the
+process of reordering memory so that all the free memory is in one block. This
+is another reason to use runtime memory linking, because otherwise processes
+cannot be moved around like this. However, the issue of moving a process when
+it is waiting on I/O still needs to be considered. Usually, processes are
+latched into their memory space when they are doing I/O operations.
+
+\end{document}
