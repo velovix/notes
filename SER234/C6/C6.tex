@@ -82,7 +82,7 @@ allows the scheduler to attempt to identify linear trends in CPU burst length
 increases and decreases. This doesn't work quite so well when the CPU burst
 length is not linear.
 
-$$T_{n+1} = \fishguy T_n + (1 - \fishguy) T_{n-1}$$
+$$T_{n+1} = \propto T_n + (1 - \propto) T_{n-1}$$
 
 If it turns out that the process does not follow a linear CPU burst length
 trend and takes much longer than expected, the scheduler may stop the process
