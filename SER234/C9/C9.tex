@@ -33,6 +33,102 @@ memory. It starts at address zero and goes contiguously. Virtual address space
 is the abstracted form of how the process is being stored in memory. It can be
 simple while the actual way it's stored may be more complicated.
 
+Generally, the Virtual Address Space is mapped so that the stack starts at the
+end of the memory space and grows ``down'', while the heap starts after some
+static data and grows ``up''. That way, a program can have a large stack and
+small heap or vice versa. As the stack and heap grow, more physical memory is
+allocated as pages are filled.
+
+As another benefit of abstracting virtual address space from the physical
+variant, the OS can have programs share pages with common information, like
+shared libraries. However, it still feels to the programs like they have their
+own memory domain. Child processes can also share pages, which make process
+creation potentially quicker.
+
 It is the job of the MMU to map logical addresses to physical addresses.
+
+\section{Demand Paging}
+We've already introduced the idea of loading the program into memory in chunks
+instead of all at once, but we can also do that with general data. When
+switching to a process, we can save time by not loading all the program memory
+in at once. Instead, pages can be brought into memory on demand, meaning that
+the page will be brought it when it is required.
+
+A ``lazy swapper'' takes this concept to the extreme and only ever swaps pages
+in when they are needed. A swapper that deals with pages is known as a
+``pager'' because talent.
+
+With swapping a pager has to guess what pages will be used and brings only
+those into memory. We need the MMU to be able to detect what pages are needed.
+If a page is ``memory resident'', the behavior is no different from non-
+demant paging. However, if the page is not memory resident, the pager needs
+to find and load the page into memory without the program having to know that
+this happened.
+
+\section{Valid-Invalid Bit}
+Every entry in the page table has a valid-invalid bit. ``Valid'' pages are
+in memory, or ``memory resident''. ``Invalid'' pages are not in memory.
+
+Pages are initially set to invalid. If the MMU translates a logical address
+and finds it points to an invalid page table, then it results in a ``page
+fault''
+
+\section{Page Faults}
+When a page is referenced and it is marked as invalid, a page fault will be
+emitted. The operating system then has to decide if the page is really an
+invalid reference (which will result in an error) or if the page just isn't
+loaded in memory. If it isn't loaded in memory, the operating system will swap
+it into a free frame and update the table to make the page valid. It will
+then run the instruction again.
+
+\section{Pure Demand Paging}
+The most radical form of demand paging is pure demand paging, which starts a
+process with no pages in memory. The very first instruction will result in a
+page fault and memory will be swapped to memory and the instruction will be
+run again. One could imagine that this is a very slow strategy, because
+instructions have to be run at least twice more often than not.
+
+Demand paging requires hardware support. The page table needs to support
+valid/invalid bits and there must be a designated swap space somewhere.
+
+Demand paging can be made faster by optimizing how the swap space is stored so
+that read and write operations don't take so long. Pages can be discarded
+instead of saved back to swap, making writes to swap less frequent.
+
+\section{Copy-on-Write}
+Copy-on-Write allows child processes to share all memory with the parent
+initially. Copies of memory will only be made if either of the processes
+modify the memory. This allows for much quicker process creation and allows for
+the least amount of wasted memory possible. A copy-on-write fork can be done
+with the vfork syscall on Unix.
+
+
+Generally, data is copied to a pool of ``zero-fill-on-demand'' pages. Pools
+should always have free frames.
+
+\section{Running Out of Free Frames}
+If the operating system is running out of free frames, it will start doing
+some ``page replacement''. Page replacement is the process of finding pages
+that aren't in use and repurposing them. What repurposing them means depends on
+the operating system, but it could swap the page out, replace the page, or
+terminate the program that owns the page.
+
+Page replacement would be implemented in the page fault service routine, the
+algorithm that's called when a page fault happens.
+
+Pages have a ``modify bit'' that is put high when the page is modified. Pages
+that haven't been modified won't be rewritten to disk.
+
+The basic page replacement algorithm is as follows:
+
+\begin{itemize}
+	\item Find the desired page on disk
+	\item Find a free frame, or use page replacement to find a ``victim
+		frame''. The victim frame will be written to disk if it's been
+		modified
+	\item Swap the page into the frame in memory
+	\item Update the frame table
+	\item Restart the instruction that caused the page fault
+\end{itemize}
 
 \end{document}
