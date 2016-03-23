@@ -1,0 +1,38 @@
+\title{Chapter 9: Virtual Memory}
+\author{Tyler Compton}
+
+\documentclass{article}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\section{Introduction}
+When we run a program, we traditionally load the entire program into memory
+before executing. This is fine for small programs, but it's potentially a bit
+wasteful. We don't often need the entire program read into memory at once.
+Some parts of the code may not be executed during the program's lifecycle, so
+memory dedicated to that code is essentially a waste.
+
+Imagine if we could execute a program that's only partially loaded. If that was
+possible, then we could fit more programs into memory at once and allow for
+more space where other data can go. Programs can be switched between more
+quickly because they are more lightweight. This sounds great. How can we do it?
+
+The way we can accomplish this task is by using ``virtual memory''. Virtual
+memory is the seperation of logical and physical memory. By allowing these to
+be seperate, we can have a logical memory that is much larger than the physical
+memory. It also allows for physical address spaces to be shared between
+processes. Generally speaking, virtual memory allows the operating system to
+get clever with how it places and loads data.
+
+\section{Virtual Address Space}
+The virual address space is the logical view of how a process is stored in
+memory. It starts at address zero and goes contiguously. Virtual address space
+is the abstracted form of how the process is being stored in memory. It can be
+simple while the actual way it's stored may be more complicated.
+
+It is the job of the MMU to map logical addresses to physical addresses.
+
+\end{document}
