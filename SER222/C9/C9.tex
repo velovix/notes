@@ -1,0 +1,126 @@
+\title{Chapter 9: Searching and Sorting}
+\author{Tyler Compton}
+
+\documentclass{article}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\section{Introduction}
+When we're saving large amounts of data, we oftentimes will want to read from
+that data as well, oftentimes using some sort of criteria. It is important that
+we can search through large amounts of data efficiently.
+
+Oftentimes, it is easier to search a database that is sorted, so that we may
+make assumptions about how elements relate to each other. We will look at
+algorithms to efficiently sort, as well.
+
+\section{Searching}
+Searching is the process of finding an element among a group. Almost
+inevidably, searching is going to involve a lot of comparisons between the
+target and the elements in the collection. We have a vested interest in keeping
+these kinds of operations to a minimum.
+
+\section{Making Searching Generic}
+We want to be able to write search algorithms in such a way that they could
+work for a variety of types. In Java, we do this by making an algorithm that
+takes objects that implement the interface ``Comparable''. Comparable requires
+an implementation of the compareTo method, which returns a number representing
+whether the element is before, at, or after the position of the given element.
+
+We could make functions that take in Comparable interface values, but we can do
+it one better and use generics, specifying that any qualifying generics must
+implement Comparable. This is preferrable because it allows us to keep some
+static typing to guarantee that we are only comparing one kind of type.
+
+\section{Linear Search}
+A linear search examines each item one at a time until the target is found.
+This algorithm has no frills and we can do better, but it works and is
+conceptually simple. The order for linear search is O(n).
+
+\section{Binary Search}
+A binary search compares the desired value to the middle value in the data,
+then compares the desired value to the middle value of the side the desired
+element must be in, order-wise, and so on. Binary search is often much more
+efficient than a linear search, but it assumes that the data is pre-sorted,
+which could be considered a disadvantage. This search has a worse-case order of
+$O(log(n))$, making it much more attractive than a linear search.
+
+As an example, consider the following sorted data, where we are looking for the
+number 29:
+
+$$8 15 22 29 36 54 55 61 70 73 88$$
+
+First, we will compare 29 to 54, the middle value of the array. Obviously, 29
+and 54 are not equivalent, but $29<54$, so we know that the value must be to
+the left. We can eliminate a lot of the array from our search
+
+$$8 15 22 29 36$$
+
+Once again, we compare 29 to the middle value, 22. 29 and 22 are not equal, but
+it is higher than 22, so we know the value must be to the right.
+
+$$29 36$$
+
+We compare 29 to the middle value, which is probably 36. 29 is not equal to 36,
+but we know it's on the left.
+
+$$29$$
+
+We compare 29 to the middle value, which is 29, and we've successfully found
+the value!
+
+The binary search is a naturally recursive algorithm, and is easy to implement
+in that way. The base case is where we run out of values to compare.
+
+\section{Sorting}
+As mentioned earlier, binary sort requires that our data set is sorted. How can
+we accomplish this efficiently? The answer is to implement a sorting algorithm.
+
+Sorting algorithms suffer from many of the same challenges that searching
+algorithms do. There are oftentimes a lot of comparisons that should be
+minimized wherever possible. To this end, there exist many sorting algorithms.
+``Sequential sorts'' are sorts that use about $n^2$ comparisons. ``Logarithmic
+sorts'' require somewhere around $nlog(n)^2$ comparisons.
+
+\section{Selection Sort}
+Selection sort is an algorithm that repetitively puts elements in their final
+space, from smallest to largest. The algorithm loops through the whole array
+and finds the smallest element, then puts it at the beginning of the array.
+Then it repeats this operation using an array that's one smaller, eliminating
+the element that was just sorted. This is done repeatedly until the whole array
+has been sorted.
+
+\section{Insertion Sort}
+Insertion sort builds a sorted data set by inserting each element one-by-one,
+ordering the other inserted elements around this new element. This repeats
+until all elements have been inserted. This algorithm works well with a data
+set that might not be available all at once, like if the data is being streamed
+or if it is still being built.
+
+\section{Bubble Sort}
+Bubble sort works by looping through a data set and comparing it to its
+neighbor, swapping them if necessary. As a result, bubble sort ends up building
+the sorted data set by carrying elements across the data set from largest to
+smallest. We can use this observation to shrink the portion of the data set
+that is being scanned by at least one for every full loop through the data set.
+This is a nice optimization, but not absolutely necessary.
+
+\section{Quick Sort}
+Quick sort works by continually splitting a list in half and making sure all
+elements to the left of the element are less than that element, and all
+elements to the right are greater. After a list is split, the two sublists are
+split and so on until the partitions are of size 1. Quick sort is a lot like
+binary sort, and is also very easily implemented recursively.
+
+\section{Merge Sort}
+Merge sort splits the list first into data sets of size one, then merges each
+subset by comparing each element to its neighbor element and ordering from that
+information. Then those subsets are merged into their neighbors and so on. Like
+the other sorts that split up the set, this sort is implemented well
+recursively, but merge sort has the added benefit of being a very efficient
+algorithm for doing a divide-and-conquer approach.
+
+\end{document}
