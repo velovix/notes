@@ -1,0 +1,176 @@
+\title{Chapter 10: Mass-Storage Systems}
+\author{Tyler Compton}
+
+\documentclass{article}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\section{Introduction}
+In the modern world, mass storage is done using magnetic disks, oftentimes
+hard drives. Magnetic disks have a transfer rate, which is the rate at which
+data flows from the drive to whatever needs it.
+
+Transfer rate is affected by a variety of factors. Positioning time is the
+combined time for the hard drive to move the arm to the desired cylinder
+(known as seek time) and the time for the desired sector to rotate under the
+disk head (known as rotational latency).
+
+A ``head crash'' is an error wherein the head touches the disk surface. This
+is not supposed to happen and can generally be considered ``a bad time''.
+
+Drives are attached to the system with what's known as an ``I/O bus''. There
+are a wide variety of I/O bus types, such as:
+
+\begin{itemize}
+	\item EIDE
+	\item ATA
+	\item SATA
+	\item USB
+	\item Fibre Channel
+	\item SCSI
+	\item SAS
+	\item Firewire
+\end{itemize}
+
+The ``host controller'' is the device that uses the bus to talk to the ``disk
+controller'', which is built into the storage device.
+
+\section{Hard Disks}
+Hard disks have magnetic plates whose radii tend to range from .85" to 14".
+Their storage space tends to range from 30GB to 3TB per drive. Their
+theoretical transfer rate is 6 Gb/sec but in actuality is closer to 1 Gb/sec.
+
+Seek time ranges from 3ms to 12ms. 9ms is common for desktop devices.
+
+\section{Solid-State Disks}
+Solid-state disks are non-volatile storage devices like hard drives. SSDs
+have the benefit of sometimes being more reliable than hard drives because they
+don't have any moving parts. However, they are more expensive for the storage
+you get and sometimes have a shorter life span.
+
+SSDs are much faster than hard drives, making them a very attractive option
+under certain circumstances. Because they don't have moving parts, there's no
+such thing as seek time or rotation speed.
+
+\section{Magnetic Tape}
+Magnetic tape is a non-volatile storage medium, but it is often used as
+secondary storage instead of primary storage like HDDs and SSDs. Their access
+time is very slow (approximately 1000x slower than HDD). Because of this,
+magnetic tape is used for backups. They tend to hold somewhere between 200GB
+and 1.5TB.
+
+Magnetic disks are spools of magnetic tape wound in two areas and run across
+a read point.
+
+\section{Disk Structure}
+Storage is addressed as a one-dimensional array of ``logical blocks''. Logical
+blocks are the smallest unit of storage. The formatting of the drive creates
+these logical blocks.
+
+On disk-style drives, sectors are mapped on to the logical blocks sequentially.
+Sector 0 is the first sector of the first track of the outermost cylinder.
+This order continues onto each track of that cylinder and onward onto every
+other cylinder.
+
+Like with memory, the computer needs to be able to map logical addresses to
+physical ones. Since we order blocks on the disk sequentially, this is an
+easier problem to solve, but the solution has to be able to account for bad
+sectors and the fact that there is a non-constant number of sectors per track
+because of constant angular velocity.
+
+\section{Storage Arrays}
+If a system needs a lot of storage, it may need multiple devices to facilitate
+that storage. The computer can just attach each disk, or attach an array of
+disks. A storage array has controllers built in that provide features to the
+hosts that are attached to it.
+
+\subsection{Storage Area Networks}
+In large storage environments, storage area networks can be used so that
+multiple hosts can attach to multiple storage arrays.
+
+\subsection{Network-Attached Storage}
+Network attached storage is storage made availble over a network as opposed to
+a direct connection, like a bus. Communication is done through RPC through TCP
+or UDP. Common protocols that do this are NFS and CIFS.
+
+\section{Disk Scheduling}
+The operating system is responsible for efficiently using the hardware it's
+provided. For disk drives, this means trying to avoid seek time as much as
+possible in order to improve access time and disk bandwidth.
+
+Disk bandwidth is the number of bytes transferred divided by the total time
+between the request and the last transfer.
+
+The operating system has to balance many sources of disk I/O requests, like
+the operating system itself, system processes, and user processes. The OS
+creates a queue of requests, with one queue per device. If the disk is idle,
+the request will go right from the queue to action, but if the disk is busy,
+it will have to wait on the queue.
+
+Drive controllers have small buffers designed to manage a queue of I/O
+requests. The amount of requests a queue can hold depends on the size of the
+buffer.
+
+\subsection{FCFS}
+FCFS (First Come First Serve) scheduling is a very simple scheduling algorithm
+wherein the requests are processed in the order they are received. This
+algorithm is simple but can often lead to a lot of seeking time as the head
+has to jump around the disk.
+
+\subsection{SSTF}
+SSTF (Shortest Seek Time First) selects the request that will take the minimum
+seek time from the current head position. This minimizes seek time as a whole
+and therefor is much more smart and efficient. However, much like other
+scheduling algorithms that always prefer some kinds of requests, less desirable
+requests can ``starve''.
+
+\subsection{SCAN}
+The SCAN algorithm moves across one end of the disk to the other, serving
+requests as it arrives at the point where the request is needed. Then, it starts
+again in the opposite direction. This algorithm does no useless backtracking
+and starvation isn't an issue. However, request service times vary widely
+depending on when the requests are received relative to where the head is.
+
+\subsection{C-SCAN}
+The C-SCAN algorithm is similar to the SCAN algorithm, but it makes response
+times more consistant. Once it reaches the end of the disk, it will return
+to the beginning of the disk immediately without servicing any requests along
+the way. In that way, it treats the disk drive as if it wraps around from the
+end to the beginning.
+
+\subsection{C-LOOK}
+C-LOOK is much like the SCAN family of algorithms, but it only goes as far
+in one direction as the furthest request. Because of this, the algorithm spends
+less time going over areas for no reason.
+
+\subsection{Selecting an Algorithm}
+For general purpose, SSTF is an attractive option since it minimizes wasted
+time. However, SCAN and C-SCAN is good for systems that put a very heavy load
+on the disk because starvation happens less often.
+
+Overall, different algorithms are better for different use cases. Algorithms
+can be written in a modular way so that one can be replaced with another if
+need be.
+
+\section{Disk Management}
+``Physical formatting'' divides a disk into sectors that can be read and
+written. Each sector contains header information, data, and an ``error
+correction code''.
+
+A disk can be ``partitioned'' into groups of cylinders, each of which are
+treated as their own logical disk.
+
+Many formats group blocks into larger sections called ``clusters''. Clusters
+are used for regular disk I/O and clusters are used for file I/O. This is
+nice, since files generally span many blocks.
+
+Some programs request raw disk access so that they can do their own block
+management. A database might do this.
+
+Drives often contain a boot block, which is in charge of initializing the
+system after the bootstrap runs and calls it.
+
+\end{document}
