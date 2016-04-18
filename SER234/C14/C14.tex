@@ -1,0 +1,145 @@
+\title{Chapter 14: Protection}
+\author{Tyler Compton}
+
+\documentclass{article}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\section{Introduction}
+
+The operating system must have some way of making sure resources are accessed
+correctly and only by processes that should be allowed to access them. In a
+protection model, a computer is a collection of objects, be it hardware or
+software.
+
+\section{Principles}
+
+The main guiding principle of protection is the ``principle of least
+privilege'', which is the idea that processes and users should be given just the
+amount of privileges they need to run and nothing more. This comes from the idea
+that all privileges are potential liabilities, so we want to minimize them as
+much as possible.
+
+These privileges can be static, meaning that they're the same throughout the
+lifespan of the process, or dynamic, meaning that they can be escalated as
+needed.
+
+The operating system has to decide what counts as an individual privilage.
+Privilages can be rough-grained, meaning that each privilage allows for a wide
+variety of operations. Rough-grained privileges are simpler and easier to manage
+because there's less to consider, but has the side effect of potentially giving
+processes more privilage than they need. Alternatively, privilages can be
+fine-grained, meaning that each privilage allows for only a small amount of
+additional functionality. This allows processes to be given the smallest amount
+of permissions possible, but does complicate matters because there's more to
+consider.
+
+\section{Domains}
+
+Domains are a set of access-rights. An access-right contains the name of the
+object the access is effecting, and a rights-set, which is a subset of all valid
+operations that can be performed within this domain.
+
+In UNIX, domains are attached to user IDs. Files in UNIX have domain bits that
+communicate what domains (or users) are able to accomplish certain tasks. A
+domain switch is controlled using passwords. A UNIX user uses a root tool like
+``su'' along with a root password to temporarily become the root user, which has
+a less restrictive access domain.
+
+\section{Access Matrix}
+
+Protection can be visualized as a matrix where the rows are domains and the
+columns are objects. Given a domain and an object, one can look at an access
+matrix and find what their permissions are.
+
+\begin{tabular}[c c c]
+	obj/domain	& $F_1$	& $F_2$ & $F_3$ & printer \\
+	$D_1$		& read 	&		& read		& \\
+	$D_2$		&		&		&			& print \\
+	$D_3$		&		& read	& execute	& \\
+	$D_4$		& read write	&		& read write & \\
+\end{tabular}
+
+The access matrix can only be changed by someone in a domain with sufficient
+permissions. The matrix seperates mechanism from policy. The operating system
+maintains the matrix and what rules there are and makes sure only certain
+domains can change it, and the user decides what domains have access to what
+objects by modifiying this matrix.
+
+\subsection{Implementing Access Matrix}
+
+The most basic implementation is a simple global table with a bunch of data
+structures containing information on the domain, the object, and the rights-set.
+When someone wants to do an operation on an object, the global table is
+consulted to see if they are allowed. However, this solution doesn't work very
+well if the access matrix is large. The size of the global table will increase
+exponentially with the more combinations of domains and objects that exist. This
+implementation is only really good for sparse access matricies.
+
+A better way of implementing an access matrix is to make it a per object list.
+Each column contains keypairs of domains and rights-sets for the object of that
+column. It is easy to extend this implementation to have a default set, whatever
+that means.
+
+Alternatively, the access matrix implementation can be domain-based. Each column
+refers to a domain and contains keypairs of objects and the rights-set for the
+domain of that column. This keypair collection is known as a capability list,
+and each keypair is known as a capability.
+
+Finally, we can make an access matrix implementation that uses locks and keys.
+In this system, each object has a list of unique bit patterns, known as locks.
+Each domain has a list of unique bit patterns called keys. A process in a domain
+can only access an object if one of its keys matches one of the locks. This
+makes it easy to express a situation wherein, for instance, a wide variety of
+objects are accessable by a domain, because a domain only needs to have one key
+to unlock a wide variety of objects.
+
+Every configuration has trade-offs. The global table is very simple to implement
+but can get very large very fast. The access list makes it easy to check
+permissions at access-time but it becomes non-trivial to figure out the
+permissions of a domain, because all objects must be consulted. Plus, the access
+list must be consulted for every object access, which can slow things down.
+Capability lists make it easy to check the permissions of a domain, but if
+someone wants to change or check who can access an object, every domain must be
+consulted. Lock-key is a good compromise. Keys can be given from one domain to
+another, and it's easy to revoke permissions by making a key not work anymore.
+
+Most systems use a hybrid of access lists and capability lists. The first time
+an object is accessed, the access list is consulted. Then, a capatability list
+is created that states the process can access that object from now on, which
+saves time on accesses. Then, this capatibility list is destroyed when the
+process ends.
+
+\section{Revoking Access}
+
+\subsection{Access Lists}
+
+Revoking privilages in an access list system is relatively easy. Just search
+through the access list and remove entries that we don't want on there any more.
+
+\subsection{Capability Lists}
+
+In a capability list, every column has to be looked through so that every
+instance referring to the object in question must be edited. This can take
+longer than with access lists.
+
+\section{Language-Based Protection}
+
+Programming languages can provide high-level protection functionality themselves
+to provide more guarantees then the operating system can. This only really
+applies to programming languages where a trusted execution environment is
+installed on a user's machine that runs untrusted programs.
+
+The JVM provides this protection in a way. Each class has a protection domain
+that describes what it can and can't do. If the class attempts to do some kind
+of privilaged operation, the JVM will look at the domain the class is in to see
+if it should be able to do that operation.
+
+A basic example of this is access rights to protected or private variables or
+methods. This is important for object-oriented languages like Java where
+encapsulation and data hiding is important.
+
+\end{document}
