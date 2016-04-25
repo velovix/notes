@@ -1,0 +1,133 @@
+\title{Chapter 15: Security}
+\author{Tyler Compton}
+
+\documentclass{article}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\section{Introduction}
+
+A system is secure if all resources are accessed as intended under all
+circumstances. Intruders are people who look to breach your security and
+perform unintended operations. Attacks can be done either by accident or
+maliciously. It is generally easier to prevent accidental attacks.
+
+\section{Security Violation Categories}
+
+\subsection{Breach of Confidentiality}
+
+A breach of confidentiality occurs when a user becomes able to read data that
+they are not authorized to access. Privacy concerns arise oftentimes because
+of the possibility of these breaches.
+
+\subsection{Breach of Integrity}
+
+A breach of integrity occurs when a user is able to modify data that they are
+not authorized to modify.
+
+\subsection{Breach of Availability}
+
+A breach of availability occurs when a user is able to destroy data that they
+are not authorized to destroy.
+
+\subsection{Theft of Service}
+
+A theft of service occurs when a user is able to abuse the resources the
+service provides.
+
+\subsection{Denial of Service}
+
+A denial of service occurs when a user is able to prevent others from
+legitimately using the software.
+
+\section{Security Violation Methods}
+
+There are many kinds of ways a user can violate security.
+
+\subsection{Masquerading}
+
+A user can potentially pretend to be a user with more access privilages and
+take actions they would not normally be able to take on that user's behalf.
+
+\subsection{Replay Attack}
+
+A user can repeat a legitimate message an illegitimate amount of times. For
+instance, if the user forced their client to send multiple authorized requests
+for money, this would be a replay attack because it would allow the user to get
+the money more times than intended.
+
+\subsection{Man-in-the-middle Attack}
+
+A hacker puts itself somewhere in between a client and server or between
+servers to intercept and modify the data being transferred.
+
+\subsection{Session Hijacking}
+
+A user can steal the session information of another user, making the server
+think that the hacker is authenticated as the victim. Operations can then be
+done on their behalf.
+
+\section{Security Measure Levels}
+
+It is impractical to have a piece of software with absolute security, but steps
+can be taken to make it difficult enough to breach security that it becomes
+impractical.
+
+Security must be implemented at four levels.
+
+\subsection{Physical}
+
+The data centers, servers, and terminals connected to these services must not
+be publically available.
+
+\subsection{Human}
+
+The people who do have access to these physical devices must be trusted. Steps
+need to be taken to avoid social engineering, phishing, and dumpster diving, to
+name a few.
+
+\subsection{Operating System}
+
+The operating system should have protection mechanisms in place to protect
+itself from intrusion.
+
+\subsection{Network}
+
+The network must be built to avoid man-in-the-middle attacks and ways hackers
+might try to bring the system down and deny service.
+
+\section{Program threats}
+
+\subsection{Trojan Horse}
+
+A trojan horse is a generally small piece of software that misuses its
+environment. It exploits mechanisms in order to allow programs written by one
+user to be run by another user. Trojan horses are responsible for the lion's
+share of spam attacks.
+
+\subsection{Trap Door}
+
+A trap door is an exploit intentionally put into a piece of software. It
+provides a special way to subvert normal security protocol and gives a way for
+other software to abuse the program that the trap door has been embedded in.
+An untrusted compiler might inject trap doors into its software.
+
+\subsection{Logic Bomb}
+A logic bomb is a section of code that, when executed, does some operation that
+is harmful in some way to the program.
+
+\subsection{Stack and Buffer Overflows}
+
+Stack and buffer overflows abuse a bug in a program that allows arbitrary
+memory to be written to and potentially executed. In most modern languages,
+array writes and accesses are checked by bounds checking algorithms to make
+sure this doesn't happen, but if these are not written properly, a user could
+potentially come up with a way that can be exploited.
+
+When a stack or buffer overflow is done, all bets are off on security. The
+attacker could theoretically do anything the program could do.
+
+\end{document}
