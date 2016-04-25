@@ -173,4 +173,71 @@ management. A database might do this.
 Drives often contain a boot block, which is in charge of initializing the
 system after the bootstrap runs and calls it.
 
+\section{Swap-Space Management}
+Swap-space is a dedicated space in storage that virtual memory can use as an
+extension to main memory. This area is often defined as a seperate partition
+but it doesn't have to be.
+
+Swap space is used when the operating system runs out of main memory and needs
+more to continue execution.
+
+Some systems allow for multiple seperate swap spaces.
+
+\section{RAID}
+RAID is a system that manages multiple disks and provides redundant storage of
+data. Fittingly, RAID stands for ``redundant array of inexpensive disks''.
+Having redundant storage increase the ``mean time of failure'' of the system.
+
+The ``mean time of repair'' is the time wherein a failure has happened and
+another failure would result in data loss since the system is more vulnerable.
+The above factors can be used to create a ``mean time of data loss'' value.
+
+Disk striping is the process of abstracting a group of disks so that it appears
+to be one single storage unit.
+
+There are various RAID schemes available:
+
+\begin{itemize}
+	\item RAID 1 - Mirroring. Keeps a copy of each disk on another disk.
+	\item RAID 1+0 - Striped mirrors
+	\item RAID 0+1 - Mirrored stripes
+	\item RAID 4,5,6 - Block interleaved parity. Uses less redundancy which
+	      saves space.
+\end{itemize}
+
+RAID helps keep data safe, but RAID can still fail if the array itself fails.
+To help avoid this problem, it's common to backup an array in another array.
+
+Some arrays have ``hot-spare disks'' which are unused disks that are there to
+replace other disks as they fail. This decreases the mean time to repair.
+
+\subsection{Extensions}
+RAID does not supply a means to detect data corruption or other errors that can
+happen at write-time. Solaris ZFS is a service that provides checksums for
+data and metadata and can check if the data matches this checksum.
+
+\section{Stable-Storage}
+Stable-storage is a way of dealing with writes that guarantees data is never
+lost from a write failure. Stable storage is implemented by replicating
+information on multiple storage media with independent failure modes, and by
+updating information in such a way that we can recover the data we know to be
+correct in case any failure happens.
+
+Stable-Storage writes can result in three different outcomes
+
+\begin{itemize}
+	\item Successful Completion - The data was written correctly
+	\item Partial Failure - A failure occurred while completing a transfer
+	      so the write was incomplete. The sector that was being written
+	      during the failure may be corrupt.
+	\item Total Failure - The failure occurred before writing could begin,
+	      so the existing data should still be fine.
+\end{itemize}
+
+If a failure occurs, the recovery procedure restores the block to a known
+state. The system accomplishes this by keeping two copies of a physical block
+for each logical block. It then makes the change to the first block, and if it
+was successful the write is done on the second block. The operation is complete
+only after both blocks were written successfully.
+
 \end{document}
